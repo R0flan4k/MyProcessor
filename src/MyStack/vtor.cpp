@@ -7,6 +7,8 @@
 #include "cmd_input.h"
 
 
+FILE * OUTPUT_ERROR_FILE = stderr;
+
 StackError INVALID_SIZE = {
     .mask = STACKERRORS_INVALID_SIZE,
     .output_error = "Invlid size.\n"

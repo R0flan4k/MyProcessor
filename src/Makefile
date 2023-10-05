@@ -3,18 +3,26 @@ FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equa
 IFLAGS = -Iinclude
 STKDIR = ./MyStack
 OBJDIR = ./obj
-OBJECTS = $(OBJDIR)/spu.o $(OBJDIR)/stack.o $(OBJDIR)/vtor.o $(OBJDIR)/my_assert.o $(OBJDIR)/cmd_input.o $(OBJDIR)/hash.o
 SPU = spu
+FILEPROCESSING = file_processing
+ARITHMETIC = arithmetic
 STACK = stack
 VERIFICATOR = vtor
 MYASSERT = my_assert
 CMDINPUT = cmd_input
 HASH = hash
+OBJECTS = $(OBJDIR)/$(SPU).o $(OBJDIR)/$(STACK).o $(OBJDIR)/$(VERIFICATOR).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o $(OBJDIR)/$(ARITHMETIC).o $(OBJDIR)/$(FILEPROCESSING).o
 
 all: $(OBJECTS)
 	$(CC) $(OBJECTS) -o spu
 
 $(OBJDIR)/$(SPU).o: $(SPU).cpp
+	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(FILEPROCESSING).o: $(FILEPROCESSING).cpp
+	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(ARITHMETIC).o: $(ARITHMETIC).cpp
 	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(STACK).o: $(STKDIR)/$(STACK).cpp
@@ -26,7 +34,7 @@ $(OBJDIR)/$(VERIFICATOR).o: $(STKDIR)/$(VERIFICATOR).cpp
 $(OBJDIR)/$(MYASSERT).o: $(STKDIR)/$(MYASSERT).cpp
 	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
-$(OBJDIR)/$(CMDINPUT).o: $(STKDIR)/$(CMDINPUT).cpp
+$(OBJDIR)/$(CMDINPUT).o: $(CMDINPUT).cpp
 	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(HASH).o: $(STKDIR)/$(HASH).cpp

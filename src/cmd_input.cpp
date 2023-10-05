@@ -23,7 +23,7 @@ bool check_cmd_input(int argc, char * * argv)
 
     const char * program_name = argv[0];
 
-    CmdLineArg * flags[] = {};
+    CmdLineArg * flags[] = {&SPU_FILE};
     size_t flags_array_size = sizeof(flags) / sizeof(flags[0]);
 
     for (size_t i = 0; i  < flags_array_size; i++)
@@ -46,7 +46,7 @@ bool check_cmd_input(int argc, char * * argv)
             }
         }
 
-        if (!SPU_FILE_NAME)
+        if (SPU_FILE_NAME == NULL)
         {
             printf("Error. Please, use %s %s *file name*\n", program_name, SPU_FILE.name);
 
