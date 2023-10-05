@@ -25,51 +25,30 @@ int main(int argc, char * argv[])
     if (!(fp = file_open(SPU_FILE_NAME, "r")))
         return 1;
 
-    long file_size = get_file_size(fp);
-    long buffer_size = file_size + 1;
-
-    Buffer_t * buffer = NULL;
-    if ((buffer = (Buffer_t *) calloc(buffer_size, sizeof(char))) == NULL)
-    {
-        printf("Can't allocate memory.");
-        fclose(fp);
-
-        return 1;
-    }
-
-    if ((buffer = read_file(buffer, buffer_size, fp)) == NULL)
-    {
-        fclose(fp);
-        free(buffer);
-
-        return 1;
-    }
-
-    buffer[buffer_size - 1] = EOF;
-
-    Buffer_t * pointer = buffer;
+    SPU_COMMANDS command = HLT;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
     bool hlt_marker = false;
-    while (*pointer != EOF)
+    while (fscanf(fp, "%d", (int *) &command) != EOF)
     {
-        printf("%d\n", *pointer);
-        switch (*pointer)
+        switch (command)
         {
             case PUSH:
-                if ((errors = stack_push(&stk, *(pointer + 1))))
+                if (!fscanf(fp, ELEM_SPEC, &in_val))
                 {
-                    free(pointer);
+                    printf("Error: Invalid input.\n");
+                    break;
+                }
+                if ((errors = stack_push(&stk, in_val)))
+                {
                     fclose(fp);
                     return errors;
                 }
-                pointer++;
                 break;
 
             case ADD:
                 if ((errors = spu_binary(&stk, ADDITION)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -78,7 +57,6 @@ int main(int argc, char * argv[])
             case SUB:
                 if ((errors = spu_binary(&stk, SUBTRACTION)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -87,7 +65,6 @@ int main(int argc, char * argv[])
             case MUL:
                 if ((errors = spu_binary(&stk, MULTIPLICATION)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -96,7 +73,6 @@ int main(int argc, char * argv[])
             case DIV:
                 if ((errors = spu_binary(&stk, DIVISION)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -105,7 +81,6 @@ int main(int argc, char * argv[])
             case SQRT:
                 if ((errors = spu_unary(&stk, SQUARE_ROOT)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -114,7 +89,6 @@ int main(int argc, char * argv[])
             case SIN:
                 if ((errors = spu_unary(&stk, SINUS)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -123,7 +97,6 @@ int main(int argc, char * argv[])
             case COS:
                 if ((errors = spu_unary(&stk, COSINUS)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -137,7 +110,6 @@ int main(int argc, char * argv[])
                 }
                 if ((errors = stack_push(&stk, in_val)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -146,7 +118,6 @@ int main(int argc, char * argv[])
             case OUT:
                 if ((errors = stack_pop(&stk, &out_val)))
                 {
-                    free(pointer);
                     fclose(fp);
                     return errors;
                 }
@@ -164,11 +135,8 @@ int main(int argc, char * argv[])
 
         if (hlt_marker == true)
             break;
-
-        pointer++;
     }
 
-    free(buffer);
     fclose(fp);
 
     if ((errors = stack_dtor(&stk)))
