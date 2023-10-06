@@ -32,22 +32,17 @@ bool check_cmd_input(int argc, char * * argv)
 
     const char * program_name = argv[0];
 
-    CmdLineArg * flags[] = {&ASSEMBLER_SOURCE_FILE, &ASSEMBLER_TARGET_FILE};
+    CmdLineArg * flags[] = {&ASSEMBLER_TARGET_FILE, &ASSEMBLER_SOURCE_FILE};
     size_t flags_array_size = sizeof(flags) / sizeof(flags[0]);
 
-    printf("flags_array_size = %zd\n", flags_array_size);
-
-    for (size_t i = 0; i  < flags_array_size; i++)
+    for (size_t i = 0; i < flags_array_size; i++)
     {
         for (int j = 1; j < argc; j++)
         {
-            printf("STEP\n");
             if (strcmp(flags[i]->name, argv[j]) == 0)
             {
                 if (argc > j + flags[i]->num_of_param)
                 {
-                    printf("step\n");
-
                     flags[i]->argc_number = j;
 
                     flags[i]->flag_function();
@@ -59,17 +54,16 @@ bool check_cmd_input(int argc, char * * argv)
                 }
             }
         }
-
-        printf("%s %s\n", SOURCE_FILE_NAME, TARGET_FILE_NAME);
-
-        if (SOURCE_FILE_NAME == NULL || TARGET_FILE_NAME == NULL)
-        {
-            printf("Error. Please, use %s %s *file name* %s *file name*\n", program_name, ASSEMBLER_SOURCE_FILE.name,
-                    ASSEMBLER_TARGET_FILE.name);
-
-            return false;
-        }
     }
+
+    if (SOURCE_FILE_NAME == NULL || TARGET_FILE_NAME == NULL)
+    {
+        printf("Error. Please, use %s %s *file name* %s *file name*\n", program_name, ASSEMBLER_SOURCE_FILE.name,
+                ASSEMBLER_TARGET_FILE.name);
+
+        return false;
+    }
+
 
     return true;
 }
@@ -84,5 +78,4 @@ void set_assembler_source_file_name_flag()
 void set_assembler_target_file_name_flag()
 {
     TARGET_FILE_NAME = cmd_input[ASSEMBLER_TARGET_FILE.argc_number + 1];
-    printf("In set_assembler_target_file_name_flag()\n");
 }
