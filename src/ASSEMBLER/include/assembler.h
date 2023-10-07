@@ -3,6 +3,10 @@
 
     #include "hash.h"
 
+    enum ConvertErrors {
+        NO_ERRORS,
+    };
+
     enum ASSEMBLER_COMMANDS {
         HLT =  -1,
         PUSH = 1,
@@ -26,5 +30,7 @@
     };
 
     const size_t MAX_COMMAND_SIZE = 16;
+
+    ConvertErrors assembler_convert(char const * const * pointers, size_t strings_num, char * output_buffer, AssemblerCommand * commands_array[], size_t commands_array_size);
 
 #endif // ASSEMBLER_H

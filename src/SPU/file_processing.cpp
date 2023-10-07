@@ -8,7 +8,6 @@
 long get_file_size(FILE * fp)
 {
     struct stat buffer = {};
-
     fstat(fileno(fp), &buffer);
 
     return buffer.st_size;

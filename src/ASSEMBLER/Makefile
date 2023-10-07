@@ -11,25 +11,25 @@ CMDINPUT = cmd_input
 OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(STRINGS).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o
 
 all: $(OBJECTS)
-	$(CC) $(OBJECTS) -o assembler
+	@$(CC) $(OBJECTS) -o assembler
 
 $(OBJDIR)/$(ASSEMBLER).o: $(ASSEMBLER).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(FILEPROCESSING).o: $(FILEPROCESSING).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(CMDINPUT).o: $(CMDINPUT).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(HASH).o: $(HASH).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(MYASSERT).o: $(MYASSERT).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(STRINGS).o: $(STRINGS).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:
-	rm -f $(OBJDIR)/*.o *~ core *~ *.exe
+	@rm -f $(OBJDIR)/*.o *~ core *~ *.exe

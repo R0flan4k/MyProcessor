@@ -175,7 +175,7 @@ int main(int argc, char * argv[])
     // printf("Strings num : %zd\n\n", strings_num);
     for (size_t i = 0; i < strings_num; i++)
     {
-        const char * buffer_ptr = pointers[i];
+        char const * buffer_ptr = pointers[i];
         char command[MAX_COMMAND_SIZE] = "";
         sscanf(pointers[i], "%s", command);
         Hash_t string_hash = calculate_hash(command, strlen(command));
@@ -252,12 +252,15 @@ int main(int argc, char * argv[])
 //             sprintf(output_buffer, "%d ", (int) ASSEMBLER_HLT.command_number);
 //             printf("Output buffer : %s\n\n", output_buffer);
 //         }
+
+// Ya yebus v jopu
         for (size_t j = 0; j < commands_array_size; j++)
         {
             if (string_hash == commands_array[j]->hash)
             {
-                buffer_ptr += commands_array[j]->size;
-                output_buffer_ptr += sprintf(output_buffer_ptr, "%d ", (int) commands_array[j]->command_number);
+                buffer_ptr = skip_word(buffer_ptr);
+                sprintf(output_buffer_ptr, "%d ", (int) commands_array[j]->command_number);
+                output_buffer_ptr = next_word(output_buffer_ptr);
 
                 if (commands_array[j]->num_of_params > 0)
                 {

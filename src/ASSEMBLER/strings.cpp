@@ -59,3 +59,28 @@ void show_strings(const char * const * strings, const size_t strings_num)
         printf("%s\n", strings[i]);
     }
 }
+
+
+char * skip_word(const char * buffer)
+{
+    MY_ASSERT(buffer != nullptr);
+
+    while (!isspace(*buffer) && *buffer != EOF)
+        buffer++;
+
+    while (isspace(*buffer) && *buffer != EOF)
+        buffer++;
+
+    return const_cast <char *> (buffer);
+}
+
+
+char * next_word(const char * buffer)
+{
+    MY_ASSERT(buffer != nullptr);
+
+    while (!isspace(*buffer) && *(buffer + 1) != EOF)
+        buffer++;
+
+    return const_cast <char *> (buffer + 1);
+}

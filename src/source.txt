@@ -1,4 +1,4 @@
-push 1000
+push 10001
 push 10
 div
 out
