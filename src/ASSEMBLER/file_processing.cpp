@@ -39,3 +39,18 @@ char * read_file(char * buffer, const size_t buffer_size, FILE * fp)
 
     return buffer;
 }
+
+
+size_t write_file(char * buffer, const size_t buffer_size, FILE * fp)
+{
+    size_t val = 0;
+
+    if (!(val = fwrite(buffer, buffer_size, 1, fp)))
+    {
+        printf("Error. Can't write the file.\n");
+
+        return NULL;
+    }
+
+    return val;
+}

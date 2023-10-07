@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "assembler.h"
 #include "file_processing.h"
@@ -9,6 +10,7 @@
 
 AssemblerCommand ASSEMBLER_PUSH = {
     .command = "push",
+    .num_of_params = 1,
     .size = 4,
     .hash = 0,
     .command_number = PUSH,
@@ -16,6 +18,7 @@ AssemblerCommand ASSEMBLER_PUSH = {
 
 AssemblerCommand ASSEMBLER_ADD = {
     .command = "add",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = PUSH,
@@ -23,6 +26,7 @@ AssemblerCommand ASSEMBLER_ADD = {
 
 AssemblerCommand ASSEMBLER_SUB = {
     .command = "sub",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = SUB,
@@ -30,6 +34,7 @@ AssemblerCommand ASSEMBLER_SUB = {
 
 AssemblerCommand ASSEMBLER_MUL = {
     .command = "mul",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = MUL,
@@ -37,6 +42,7 @@ AssemblerCommand ASSEMBLER_MUL = {
 
 AssemblerCommand ASSEMBLER_DIV = {
     .command = "div",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = DIV,
@@ -44,6 +50,7 @@ AssemblerCommand ASSEMBLER_DIV = {
 
 AssemblerCommand ASSEMBLER_SQRT = {
     .command = "sqrt",
+    .num_of_params = 0,
     .size = 4,
     .hash = 0,
     .command_number = SQRT,
@@ -51,6 +58,7 @@ AssemblerCommand ASSEMBLER_SQRT = {
 
 AssemblerCommand ASSEMBLER_SIN = {
     .command = "sin",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = SIN,
@@ -58,6 +66,7 @@ AssemblerCommand ASSEMBLER_SIN = {
 
 AssemblerCommand ASSEMBLER_COS = {
     .command = "cos",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = COS,
@@ -65,6 +74,7 @@ AssemblerCommand ASSEMBLER_COS = {
 
 AssemblerCommand ASSEMBLER_IN = {
     .command = "in",
+    .num_of_params = 0,
     .size = 2,
     .hash = 0,
     .command_number = IN,
@@ -72,6 +82,7 @@ AssemblerCommand ASSEMBLER_IN = {
 
 AssemblerCommand ASSEMBLER_OUT = {
     .command = "out",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = OUT,
@@ -79,6 +90,7 @@ AssemblerCommand ASSEMBLER_OUT = {
 
 AssemblerCommand ASSEMBLER_HLT = {
     .command = "hlt",
+    .num_of_params = 0,
     .size = 3,
     .hash = 0,
     .command_number = HLT,
@@ -132,8 +144,6 @@ int main(int argc, char * argv[])
 
     get_pointers(buffer, pointers, strings_num);
 
-    free(buffer);
-
     AssemblerCommand * commands_array[] = {
         &ASSEMBLER_PUSH, &ASSEMBLER_ADD,
         &ASSEMBLER_SUB,  &ASSEMBLER_MUL,
@@ -145,19 +155,143 @@ int main(int argc, char * argv[])
 
     size_t commands_array_size = sizeof(commands_array) / sizeof(commands_array[0]);
 
-    for (int i = 0; i < commands_array_size; i++)
+    for (size_t i = 0; i < commands_array_size; i++)
     {
-        commands_array[i]->hash = calculate_hash((void *) commands_array[i]->command, commands_array[i]->size);
+        commands_array[i]->hash = calculate_hash(const_cast <char *> (commands_array[i]->command), commands_array[i]->size);
     }
 
-    if ((target_fp = file_open(TARGET_FILE_NAME, "w")) == NULL)
+    char * output_buffer = NULL;
+    if ((output_buffer = (char *) calloc(buffer_size, sizeof(char))) == NULL)
+    {
+        printf("Can't allocate memory.");
+        free(pointers);
+        free(buffer);
+
         return 1;
+    }
 
-        printf("1\n");
+    char * output_buffer_ptr = output_buffer;
 
-    fclose(target_fp);
+    // printf("Strings num : %zd\n\n", strings_num);
+    for (size_t i = 0; i < strings_num; i++)
+    {
+        const char * buffer_ptr = pointers[i];
+        char command[MAX_COMMAND_SIZE] = "";
+        sscanf(pointers[i], "%s", command);
+        Hash_t string_hash = calculate_hash(command, strlen(command));
+        // printf("String       : %s\n", pointers[i]);
+        // printf("Current hash : %lld\n", string_hash);
 
+//         if (string_hash == ASSEMBLER_PUSH.hash)
+//         {
+//             printf("In PUSH[%lld]\n", ASSEMBLER_PUSH.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_PUSH.command_number);
+//             double val = 0;
+//             sscanf(pointers[i], "%lf", &val);
+//             sprintf(output_buffer, "%lf ", val);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//
+//         }
+//         else if (string_hash == ASSEMBLER_ADD.hash)
+//         {
+//             printf("In ADD[%lld]\n", ASSEMBLER_ADD.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_ADD.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_SUB.hash)
+//         {
+//             printf("In SUB[%lld]\n", ASSEMBLER_SUB.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SUB.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_MUL.hash)
+//         {
+//             printf("In MUL[%lld]\n", ASSEMBLER_MUL.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_MUL.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_DIV.hash)
+//         {
+//             printf("In DIV[%lld]\n", ASSEMBLER_DIV.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_DIV.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_SQRT.hash)
+//         {
+//             printf("In SQRT[%lld]\n", ASSEMBLER_SQRT.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SQRT.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_SIN.hash)
+//         {
+//             printf("In SIN[%lld]\n", ASSEMBLER_SIN.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SIN.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_COS.hash)
+//         {
+//             printf("In COS[%lld]\n", ASSEMBLER_COS.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_COS.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_IN.hash)
+//         {
+//             printf("In IN[%lld]\n", ASSEMBLER_IN.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_IN.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_OUT.hash)
+//         {
+//             printf("In OUT[%lld]\n", ASSEMBLER_OUT.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_OUT.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+//         else if (string_hash == ASSEMBLER_HLT.hash)
+//         {
+//             printf("In HLT[%lld]\n", ASSEMBLER_HLT.hash);
+//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_HLT.command_number);
+//             printf("Output buffer : %s\n\n", output_buffer);
+//         }
+        for (size_t j = 0; j < commands_array_size; j++)
+        {
+            if (string_hash == commands_array[j]->hash)
+            {
+                buffer_ptr += commands_array[j]->size;
+                output_buffer_ptr += sprintf(output_buffer_ptr, "%d ", (int) commands_array[j]->command_number);
+
+                if (commands_array[j]->num_of_params > 0)
+                {
+                    char val_string[MAX_COMMAND_SIZE] = "";
+
+                    sscanf(buffer_ptr, "%s", val_string);
+                    output_buffer_ptr += sprintf(output_buffer_ptr, "%s ", val_string);
+                }
+            }
+        }
+        // printf("Current output buffer : %s\n", output_buffer);
+    }
     free(pointers);
+    free(buffer);
+
+    // puts("");
+    // printf("Result output buffer: %s\n", output_buffer);
+
+    if ((target_fp = file_open(TARGET_FILE_NAME, "w")) == NULL)
+    {
+        free(output_buffer);
+        return 1;
+    }
+
+    if (!write_file(output_buffer, buffer_size, target_fp))
+    {
+        free(output_buffer);
+        fclose(target_fp);
+
+        return 1;
+    }
+
+    free(output_buffer);
+    fclose(target_fp);
 
     return 0;
 }

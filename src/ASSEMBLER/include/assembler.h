@@ -1,6 +1,8 @@
 #ifndef ASSEMBLER_H
     #define ASSEMBLER_H
 
+    #include "hash.h"
+
     enum ASSEMBLER_COMMANDS {
         HLT =  -1,
         PUSH = 1,
@@ -17,9 +19,12 @@
 
     struct AssemblerCommand {
         const char * command;
+        int num_of_params;
         size_t size;
-        int hash;
+        Hash_t hash;
         ASSEMBLER_COMMANDS command_number;
     };
+
+    const size_t MAX_COMMAND_SIZE = 16;
 
 #endif // ASSEMBLER_H
