@@ -14,31 +14,31 @@ HASH = hash
 OBJECTS = $(OBJDIR)/$(SPU).o $(OBJDIR)/$(STACK).o $(OBJDIR)/$(VERIFICATOR).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o $(OBJDIR)/$(ARITHMETIC).o $(OBJDIR)/$(FILEPROCESSING).o
 
 all: $(OBJECTS)
-	$(CC) $(OBJECTS) -o spu
+	@$(CC) $(OBJECTS) -o spu
 
 $(OBJDIR)/$(SPU).o: $(SPU).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(FILEPROCESSING).o: $(FILEPROCESSING).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(ARITHMETIC).o: $(ARITHMETIC).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(STACK).o: $(STKDIR)/$(STACK).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(VERIFICATOR).o: $(STKDIR)/$(VERIFICATOR).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(MYASSERT).o: $(STKDIR)/$(MYASSERT).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(CMDINPUT).o: $(CMDINPUT).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(HASH).o: $(STKDIR)/$(HASH).cpp
-	$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:
 	rm -f $(OBJDIR)/*.o *~ core *~ *.exe

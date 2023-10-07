@@ -1,3 +1,0 @@
-div
-mul
-push 3000

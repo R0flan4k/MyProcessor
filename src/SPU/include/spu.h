@@ -2,6 +2,7 @@
     #define SPU_H
 
     enum SPU_COMMANDS {
+        HLT =  -1,
         PUSH = 1,
         ADD =  2,
         SUB =  3,
@@ -12,7 +13,6 @@
         COS =  8,
         IN =   9,
         OUT =  10,
-        HLT =  11,
     };
 
 #endif // SPU_H
