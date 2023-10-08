@@ -1,6 +1,10 @@
-push 10001
+push 100
 push 10
+pop rax
+push rax
 div
+out
+push rax
 out
 hlt
 push 1000

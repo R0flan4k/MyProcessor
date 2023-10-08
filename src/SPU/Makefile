@@ -41,4 +41,4 @@ $(OBJDIR)/$(HASH).o: $(STKDIR)/$(HASH).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:
-	rm -f $(OBJDIR)/*.o *~ core *~ *.exe
+	@rm -f $(OBJDIR)/*.o *~ core *~ *.exe

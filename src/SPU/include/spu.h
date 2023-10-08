@@ -25,6 +25,15 @@
         COS =  8,
         IN =   9,
         OUT =  10,
+        POP =  11,
+    };
+
+    enum SPU_REGISTERS {
+        RAX = 1,
+        RBX = 2,
+        RCX = 3,
+        RDX = 4,
+        IP =  5,
     };
 
     Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp);

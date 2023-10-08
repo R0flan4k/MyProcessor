@@ -191,6 +191,41 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 hlt_marker = true;
                 break;
 
+            case POP:
+                if ((errors = stack_pop(&spu->stk, &out_val)))
+                {
+                    return errors;
+                }
+                if (!fscanf(fp, ELEM_SPEC, &in_val))
+                {
+                    printf("Error: Invalid input.\n");
+                    break;
+                }
+                switch ((int) in_val)
+                {
+                    case RAX:
+                        spu->rax = out_val;
+                        break;
+
+                    case RBX:
+                        spu->rbx = out_val;
+                        break;
+
+                    case RCX:
+                        spu->rcx = out_val;
+                        break;
+
+                    case RDX:
+                        spu->rdx = out_val;
+                        break;
+
+                    default:
+                        MY_ASSERT(0 && "UNREACHABLE");
+                        break;
+                }
+                break;
+
+
             default:
                 MY_ASSERT(0 && "UNREACHABLE");
                 break;

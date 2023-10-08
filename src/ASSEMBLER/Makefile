@@ -8,7 +8,8 @@ MYASSERT = my_assert
 STRINGS = strings
 HASH = hash
 CMDINPUT = cmd_input
-OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(STRINGS).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o
+CONVERTOR = convertor
+OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(STRINGS).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o $(OBJDIR)/$(CONVERTOR).o
 
 all: $(OBJECTS)
 	@$(CC) $(OBJECTS) -o assembler
@@ -29,6 +30,9 @@ $(OBJDIR)/$(MYASSERT).o: $(MYASSERT).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(STRINGS).o: $(STRINGS).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(CONVERTOR).o: $(CONVERTOR).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:

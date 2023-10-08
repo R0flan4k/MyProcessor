@@ -8,94 +8,6 @@
 #include "strings.h"
 #include "hash.h"
 
-AssemblerCommand ASSEMBLER_PUSH = {
-    .command = "push",
-    .num_of_params = 1,
-    .size = 4,
-    .hash = 0,
-    .command_number = PUSH,
-};
-
-AssemblerCommand ASSEMBLER_ADD = {
-    .command = "add",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = PUSH,
-};
-
-AssemblerCommand ASSEMBLER_SUB = {
-    .command = "sub",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = SUB,
-};
-
-AssemblerCommand ASSEMBLER_MUL = {
-    .command = "mul",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = MUL,
-};
-
-AssemblerCommand ASSEMBLER_DIV = {
-    .command = "div",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = DIV,
-};
-
-AssemblerCommand ASSEMBLER_SQRT = {
-    .command = "sqrt",
-    .num_of_params = 0,
-    .size = 4,
-    .hash = 0,
-    .command_number = SQRT,
-};
-
-AssemblerCommand ASSEMBLER_SIN = {
-    .command = "sin",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = SIN,
-};
-
-AssemblerCommand ASSEMBLER_COS = {
-    .command = "cos",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = COS,
-};
-
-AssemblerCommand ASSEMBLER_IN = {
-    .command = "in",
-    .num_of_params = 0,
-    .size = 2,
-    .hash = 0,
-    .command_number = IN,
-};
-
-AssemblerCommand ASSEMBLER_OUT = {
-    .command = "out",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = OUT,
-};
-
-AssemblerCommand ASSEMBLER_HLT = {
-    .command = "hlt",
-    .num_of_params = 0,
-    .size = 3,
-    .hash = 0,
-    .command_number = HLT,
-};
-
 
 int main(int argc, char * argv[])
 {
@@ -150,14 +62,25 @@ int main(int argc, char * argv[])
         &ASSEMBLER_DIV,  &ASSEMBLER_SQRT,
         &ASSEMBLER_SIN,  &ASSEMBLER_COS,
         &ASSEMBLER_IN,   &ASSEMBLER_OUT,
-        &ASSEMBLER_HLT,
+        &ASSEMBLER_HLT,  &ASSEMBLER_POP,
     };
-
     size_t commands_array_size = sizeof(commands_array) / sizeof(commands_array[0]);
 
     for (size_t i = 0; i < commands_array_size; i++)
     {
-        commands_array[i]->hash = calculate_hash(const_cast <char *> (commands_array[i]->command), commands_array[i]->size);
+        commands_array[i]->hash = calculate_hash(const_cast <char *> (commands_array[i]->command), strlen(commands_array[i]->command));
+    }
+
+    AssemblerRegister * registers_array[] = {
+        &ASSEMBLER_RAX, &ASSEMBLER_RBX,
+        &ASSEMBLER_RCX, &ASSEMBLER_RDX,
+        &ASSEMBLER_IP,
+    };
+    size_t registers_array_size = sizeof(registers_array) / sizeof(registers_array[0]);
+
+    for (size_t i = 0; i < registers_array_size; i++)
+    {
+        registers_array[i]->hash = calculate_hash(const_cast <char *> (registers_array[i]->rgstr), strlen(registers_array[i]->rgstr));
     }
 
     char * output_buffer = NULL;
@@ -170,109 +93,16 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    char * output_buffer_ptr = output_buffer;
+    AssemblerErrors errors = NO_ERRORS;
 
-    // printf("Strings num : %zd\n\n", strings_num);
-    for (size_t i = 0; i < strings_num; i++)
+    if ((errors = assembler_convert(pointers, strings_num,
+                                    output_buffer, commands_array,
+                                    commands_array_size, registers_array,
+                                    registers_array_size)))
     {
-        char const * buffer_ptr = pointers[i];
-        char command[MAX_COMMAND_SIZE] = "";
-        sscanf(pointers[i], "%s", command);
-        Hash_t string_hash = calculate_hash(command, strlen(command));
-        // printf("String       : %s\n", pointers[i]);
-        // printf("Current hash : %lld\n", string_hash);
-
-//         if (string_hash == ASSEMBLER_PUSH.hash)
-//         {
-//             printf("In PUSH[%lld]\n", ASSEMBLER_PUSH.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_PUSH.command_number);
-//             double val = 0;
-//             sscanf(pointers[i], "%lf", &val);
-//             sprintf(output_buffer, "%lf ", val);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//
-//         }
-//         else if (string_hash == ASSEMBLER_ADD.hash)
-//         {
-//             printf("In ADD[%lld]\n", ASSEMBLER_ADD.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_ADD.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_SUB.hash)
-//         {
-//             printf("In SUB[%lld]\n", ASSEMBLER_SUB.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SUB.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_MUL.hash)
-//         {
-//             printf("In MUL[%lld]\n", ASSEMBLER_MUL.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_MUL.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_DIV.hash)
-//         {
-//             printf("In DIV[%lld]\n", ASSEMBLER_DIV.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_DIV.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_SQRT.hash)
-//         {
-//             printf("In SQRT[%lld]\n", ASSEMBLER_SQRT.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SQRT.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_SIN.hash)
-//         {
-//             printf("In SIN[%lld]\n", ASSEMBLER_SIN.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_SIN.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_COS.hash)
-//         {
-//             printf("In COS[%lld]\n", ASSEMBLER_COS.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_COS.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_IN.hash)
-//         {
-//             printf("In IN[%lld]\n", ASSEMBLER_IN.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_IN.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_OUT.hash)
-//         {
-//             printf("In OUT[%lld]\n", ASSEMBLER_OUT.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_OUT.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-//         else if (string_hash == ASSEMBLER_HLT.hash)
-//         {
-//             printf("In HLT[%lld]\n", ASSEMBLER_HLT.hash);
-//             sprintf(output_buffer, "%d ", (int) ASSEMBLER_HLT.command_number);
-//             printf("Output buffer : %s\n\n", output_buffer);
-//         }
-
-// Ya yebus v jopu
-        for (size_t j = 0; j < commands_array_size; j++)
-        {
-            if (string_hash == commands_array[j]->hash)
-            {
-                buffer_ptr = skip_word(buffer_ptr);
-                sprintf(output_buffer_ptr, "%d ", (int) commands_array[j]->command_number);
-                output_buffer_ptr = next_word(output_buffer_ptr);
-
-                if (commands_array[j]->num_of_params > 0)
-                {
-                    char val_string[MAX_COMMAND_SIZE] = "";
-
-                    sscanf(buffer_ptr, "%s", val_string);
-                    output_buffer_ptr += sprintf(output_buffer_ptr, "%s ", val_string);
-                }
-            }
-        }
-        // printf("Current output buffer : %s\n", output_buffer);
+        return errors;
     }
+
     free(pointers);
     free(buffer);
 

@@ -65,10 +65,10 @@ char * skip_word(const char * buffer)
 {
     MY_ASSERT(buffer != nullptr);
 
-    while (!isspace(*buffer) && *buffer != EOF)
+    while (!isspace(*buffer) && *buffer != EOF && *buffer != '\0')
         buffer++;
 
-    while (isspace(*buffer) && *buffer != EOF)
+    while (isspace(*buffer) && *buffer != EOF && *buffer != '\0')
         buffer++;
 
     return const_cast <char *> (buffer);
@@ -79,7 +79,7 @@ char * next_word(const char * buffer)
 {
     MY_ASSERT(buffer != nullptr);
 
-    while (!isspace(*buffer) && *(buffer + 1) != EOF)
+    while (!isspace(*buffer) && *(buffer + 1) != EOF && *(buffer + 1) != '\0')
         buffer++;
 
     return const_cast <char *> (buffer + 1);
