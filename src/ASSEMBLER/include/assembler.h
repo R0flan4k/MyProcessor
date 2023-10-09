@@ -6,6 +6,12 @@
 
     enum AssemblerErrors {
         NO_ERRORS,
+        POP_ERROR,
+    };
+
+    enum PushMode {
+        PUSH_NUMBER   = 1,
+        PUSH_REGISTER = 2,
     };
 
     enum AssemblerCommands {
@@ -35,13 +41,13 @@
         const char * command;
         int num_of_params;
         size_t size;
-        Hash_t hash;
+        const Hash_t hash;
         AssemblerCommands command_number;
     };
 
     struct AssemblerRegister {
         const char * rgstr;
-        Hash_t hash;
+        const Hash_t hash;
         Elem_t value;
         AssemblerRegisters ip;
     };
@@ -66,6 +72,6 @@
 
     const size_t MAX_COMMAND_SIZE = 16;
 
-    AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * output_buffer, AssemblerCommand * commands_array[], size_t commands_array_size, AssemblerRegister * registers_array[], size_t registers_array_size);
+    AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * output_buffer);
 
 #endif // ASSEMBLER_H

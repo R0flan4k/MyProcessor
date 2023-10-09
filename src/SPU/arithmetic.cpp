@@ -97,21 +97,84 @@ Error_t spu_unary(Stack * stk, SpuUnaryMathOperations mode)
 Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 {
     Error_t errors;
-    SPU_COMMANDS command = HLT;
+    SpuCommands command = HLT;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
     bool hlt_marker = false;
+    PushMode push_mode = NULL_MODE;
+    SpuRegisters register_ip = NULL_REGISTER;
 
     while (fscanf(fp, "%d", (int *) &command) != EOF) // huynsia
     {
         switch (command)
         {
             case PUSH:
-                if (!fscanf(fp, ELEM_SPEC, &in_val))
+                if (!fscanf(fp, "%d", (int *) &push_mode))
                 {
-                    printf("Error: Invalid input.\n");
+                    printf("Error: Invalid push.\n");
                     break;
                 }
+
+                switch (push_mode)
+                {
+                    case PUSH_NUMBER:
+                        if (!fscanf(fp, ELEM_SPEC, &in_val))
+                        {
+                            printf("Error: Invalid push.\n");
+                            hlt_marker = true;
+                        }
+                        break;
+
+                    case PUSH_REGISTER:
+                        if (!fscanf(fp, "%d", (int *) &register_ip))
+                        {
+                            printf("Error: Invalid pushing register\n");
+                            hlt_marker = true;
+                        }
+
+                        switch (register_ip)
+                        {
+                            case RAX:
+                                in_val = spu->rax;
+                                break;
+
+                            case RBX:
+                                in_val = spu->rbx;
+                                break;
+
+                            case RCX:
+                                in_val = spu->rcx;
+                                break;
+
+                            case RDX:
+                                in_val = spu->rdx;
+                                break;
+
+                            case IP:
+                                in_val = spu->ip;
+                                break;
+
+                            case NULL_REGISTER:
+                                printf("Error: can't push null register\n");
+                                hlt_marker = true;
+                                break;
+
+                            default:
+                                MY_ASSERT(0 && "UNREACHABLE");
+                                break;
+                        }
+                        break;
+
+                    case NULL_MODE:
+                        printf("Error: can't push null mode\n");
+                        hlt_marker = true;
+                        break;
+
+                    default:
+                        MY_ASSERT(0 && "UNREACHABLE");
+                        break;
+                }
+
                 if ((errors = stack_push(&spu->stk, in_val)))
                 {
                     return errors;
@@ -184,7 +247,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 {
                     return errors;
                 }
-                printf(ELEM_SPEC, out_val);
+                printf(ELEM_SPEC "\n", out_val);
                 break;
 
             case HLT:
@@ -196,12 +259,13 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 {
                     return errors;
                 }
-                if (!fscanf(fp, ELEM_SPEC, &in_val))
+
+                if (!fscanf(fp, "%d", (int *) &register_ip))
                 {
-                    printf("Error: Invalid input.\n");
+                    printf("Error: Invalid pop.\n");
                     break;
                 }
-                switch ((int) in_val)
+                switch (register_ip)
                 {
                     case RAX:
                         spu->rax = out_val;
@@ -219,6 +283,16 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                         spu->rdx = out_val;
                         break;
 
+                    case IP:
+                        printf("Error: can't pop ip register\n");
+                        hlt_marker = true;
+                        break;
+
+                    case NULL_REGISTER:
+                        printf("Error: can't pop null register\n");
+                        hlt_marker = true;
+                        break;
+
                     default:
                         MY_ASSERT(0 && "UNREACHABLE");
                         break;
@@ -233,6 +307,8 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 
         if (hlt_marker == true)
             break;
+
+        spu->ip++;
     }
 
     return errors;

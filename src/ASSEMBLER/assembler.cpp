@@ -56,32 +56,22 @@ int main(int argc, char * argv[])
 
     get_pointers(buffer, pointers, strings_num);
 
-    AssemblerCommand * commands_array[] = {
-        &ASSEMBLER_PUSH, &ASSEMBLER_ADD,
-        &ASSEMBLER_SUB,  &ASSEMBLER_MUL,
-        &ASSEMBLER_DIV,  &ASSEMBLER_SQRT,
-        &ASSEMBLER_SIN,  &ASSEMBLER_COS,
-        &ASSEMBLER_IN,   &ASSEMBLER_OUT,
-        &ASSEMBLER_HLT,  &ASSEMBLER_POP,
-    };
-    size_t commands_array_size = sizeof(commands_array) / sizeof(commands_array[0]);
+    // AssemblerCommand * commands_array[] = {
+    //     &ASSEMBLER_PUSH, &ASSEMBLER_ADD,
+    //     &ASSEMBLER_SUB,  &ASSEMBLER_MUL,
+    //     &ASSEMBLER_DIV,  &ASSEMBLER_SQRT,
+    //     &ASSEMBLER_SIN,  &ASSEMBLER_COS,
+    //     &ASSEMBLER_IN,   &ASSEMBLER_OUT,
+    //     &ASSEMBLER_HLT,  &ASSEMBLER_POP,
+    // };
+    // size_t commands_array_size = sizeof(commands_array) / sizeof(commands_array[0]);
 
-    for (size_t i = 0; i < commands_array_size; i++)
-    {
-        commands_array[i]->hash = calculate_hash(const_cast <char *> (commands_array[i]->command), strlen(commands_array[i]->command));
-    }
-
-    AssemblerRegister * registers_array[] = {
-        &ASSEMBLER_RAX, &ASSEMBLER_RBX,
-        &ASSEMBLER_RCX, &ASSEMBLER_RDX,
-        &ASSEMBLER_IP,
-    };
-    size_t registers_array_size = sizeof(registers_array) / sizeof(registers_array[0]);
-
-    for (size_t i = 0; i < registers_array_size; i++)
-    {
-        registers_array[i]->hash = calculate_hash(const_cast <char *> (registers_array[i]->rgstr), strlen(registers_array[i]->rgstr));
-    }
+    // AssemblerRegister * registers_array[] = {
+    //     &ASSEMBLER_RAX, &ASSEMBLER_RBX,
+    //     &ASSEMBLER_RCX, &ASSEMBLER_RDX,
+    //     &ASSEMBLER_IP,
+    // };
+    // size_t registers_array_size = sizeof(registers_array) / sizeof(registers_array[0]);
 
     char * output_buffer = NULL;
     if ((output_buffer = (char *) calloc(buffer_size, sizeof(char))) == NULL)
@@ -95,10 +85,7 @@ int main(int argc, char * argv[])
 
     AssemblerErrors errors = NO_ERRORS;
 
-    if ((errors = assembler_convert(pointers, strings_num,
-                                    output_buffer, commands_array,
-                                    commands_array_size, registers_array,
-                                    registers_array_size)))
+    if ((errors = assembler_convert(pointers, strings_num, output_buffer)))
     {
         return errors;
     }

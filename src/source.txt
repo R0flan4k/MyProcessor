@@ -1,9 +1,24 @@
-push 100
+push 100 
 push 10
-pop rax
-push rax
-div
+pop rax   ; rax = 10
+push 11
+pop rbx   ; rbx = 11
+push 12  
+pop rcx   ; rcx = 12
+push 13
+pop rdx   ; rdx = 13
+push rax  ; push 10
+push rbx  ; push 11
+push rcx  ; push 12
+push rdx  ; push 13
+push ip   ; push 13 or 12 ???
+add
+add
+add
+add
+add ; 100 + 10 + 11 + 12 + 13 + (13?12)
 out
+hlt
 push rax
 out
 hlt
