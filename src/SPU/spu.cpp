@@ -27,6 +27,7 @@ int main(int argc, char * argv[])
 
     if ((errors = spu_process_comands(&spu, fp)))
     {
+        show_dump(&spu.stk, &errors);
         fclose(fp);
         return errors;
     }
