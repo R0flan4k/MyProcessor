@@ -12,6 +12,7 @@
     extern CmdLineArg * FLAGS[];
     extern size_t FLAGS_ARRAY_SIZE;
 
+    void show_error_message(const char * program_name);
     void set_spu_file_name_flag(void);
 
 #endif // FLAGS_H

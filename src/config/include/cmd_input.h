@@ -7,6 +7,7 @@
         void (*flag_function)(void);                 ///< Function of flag.
         int argc_number;                             ///< Serial number of flag in cmd line.
         const char * help;                           ///< How to use this flag.
+        bool is_mandatory;
     };
 
 //     extern CmdLineArg ASSEMBLER_SOURCE_FILE;

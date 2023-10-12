@@ -24,6 +24,8 @@ bool check_cmd_input(int argc, char * * argv)
                     FLAGS[i]->argc_number = j;
 
                     FLAGS[i]->flag_function();
+
+                    FLAGS[i]->is_mandatory = true;
                 }
                 else
                 {
@@ -34,7 +36,14 @@ bool check_cmd_input(int argc, char * * argv)
         }
     }
 
-    ///
+    for (size_t i = 0; i < FLAGS_ARRAY_SIZE; i++)
+    {
+        if (!FLAGS[i]->is_mandatory)
+        {
+            show_error_message(program_name);
+            return false;
+        }
+    }
 
 
     return true;

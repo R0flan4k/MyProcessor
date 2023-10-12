@@ -20,6 +20,11 @@ CmdLineArg SPU_FILE = {
 CmdLineArg * FLAGS[] = {&SPU_FILE};
 size_t FLAGS_ARRAY_SIZE = sizeof(FLAGS) / sizeof(FLAGS[0]);
 
+void show_error_message(const char * program_name)
+{
+    printf("Error. Please, use %s %s\n", program_name, SPU_FILE.help);
+}
+
 void set_spu_file_name_flag()
 {
     SPU_FILE_NAME = cmd_input[SPU_FILE.argc_number + 1];

@@ -13,6 +13,7 @@
     extern CmdLineArg * FLAGS[];
     extern size_t FLAGS_ARRAY_SIZE;
 
+    void show_error_message(const char * program_name);
     void set_assembler_source_file_name_flag(void);
     void set_assembler_target_file_name_flag(void);
 
