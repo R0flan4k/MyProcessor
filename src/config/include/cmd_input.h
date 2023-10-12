@@ -1,8 +1,6 @@
 #ifndef CMD_INPUT_H
     #define CMD_INPUT_H
 
-    #include "stack.h"
-
     struct CmdLineArg {
         const char * name;                           ///< Name of flag.
         int num_of_param;                            ///< Number of flag parameters.
@@ -11,11 +9,12 @@
         const char * help;                           ///< How to use this flag.
     };
 
-    extern CmdLineArg SPU_FILE;
-
-    extern char * SPU_FILE_NAME;
+//     extern CmdLineArg ASSEMBLER_SOURCE_FILE;
+//     extern CmdLineArg ASSEMBLER_TARGET_FILE;
+//
+//     extern char * SOURCE_FILE_NAME;
+//     extern char * TARGET_FILE_NAME;
 
     bool check_cmd_input(int argc, char * * argv);
-    void set_spu_file_name_flag(void);
 
 #endif // CMD_INPUT_H

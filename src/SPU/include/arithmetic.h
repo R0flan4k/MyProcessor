@@ -19,6 +19,5 @@
     Error_t get_two_values(Stack * stk, Elem_t * val1, Elem_t * val2);
     Error_t spu_binary(Stack * stk, SpuBinaryMathOperations mode);
     Error_t spu_unary(Stack * stk, SpuUnaryMathOperations mode);
-    Error_t spu_in(Stack * stk);
 
 #endif

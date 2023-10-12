@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/github/MyProcessor/src/MyStack",
-      "program": "d:/github/MyProcessor/src/MyStack/build/Debug/outDebug",
+      "cwd": "d:/github/MyProcessor/src/SPU",
+      "program": "d:/github/MyProcessor/src/SPU/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

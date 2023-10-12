@@ -61,6 +61,9 @@
     Elem_t * const STACK_POISON_PTR = NULL;
     const Jagajaga_t STACK_JAGAJAGA_VALUE = 0xAB00B1EABCDEF;
 
+    // FILE * OUTPUT_ERROR_FILE = stderr;
+    // FILE * INPUT_FILE = stdin;
+
     Error_t stack_ctor(Stack * stk);
     Error_t stack_dtor(Stack * stk);
     Error_t stack_push(Stack * stk, const Elem_t value);

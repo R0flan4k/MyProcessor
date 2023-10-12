@@ -5,6 +5,7 @@
 #include "stack.h"
 #include "my_assert.h"
 #include "spu.h"
+#include "processor.h"
 
 
 Error_t get_two_values(Stack * stk, Elem_t * val1, Elem_t * val2)
@@ -97,12 +98,12 @@ Error_t spu_unary(Stack * stk, SpuUnaryMathOperations mode)
 Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 {
     Error_t errors;
-    SpuCommands command = HLT;
+    ProcessorCommands command = HLT;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
     bool hlt_marker = false;
     PushMode push_mode = NULL_MODE;
-    SpuRegisters register_ip = NULL_REGISTER;
+    ProcessorRegisters register_ip = RAX;
 
     while (fscanf(fp, "%d", (int *) &command) != EOF) // huynsia
     {
@@ -154,11 +155,6 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                                 in_val = spu->ip;
                                 break;
 
-                            case NULL_REGISTER:
-                                printf("Error: can't push null register\n");
-                                hlt_marker = true;
-                                break;
-
                             default:
                                 MY_ASSERT(0 && "UNREACHABLE");
                                 break;
@@ -167,7 +163,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 
                     case NULL_MODE:
                         printf("Error: can't push null mode\n");
-                        hlt_marker = true;
+                        hlt_marker = true; //return blyat
                         break;
 
                     default:
@@ -285,11 +281,6 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 
                     case IP:
                         printf("Error: can't pop ip register\n");
-                        hlt_marker = true;
-                        break;
-
-                    case NULL_REGISTER:
-                        printf("Error: can't pop null register\n");
                         hlt_marker = true;
                         break;
 

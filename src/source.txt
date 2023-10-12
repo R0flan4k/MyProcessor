@@ -20,7 +20,6 @@ mul ; 100 * 10 * 11 * 12 * 13 * 13
 out
 in
 out
-out
 hlt
 push rax
 out

@@ -7,6 +7,7 @@
 #include "cmd_input.h"
 #include "strings.h"
 #include "hash.h"
+#include "flags.h"
 
 
 int main(int argc, char * argv[])
@@ -56,23 +57,6 @@ int main(int argc, char * argv[])
 
     get_pointers(buffer, pointers, strings_num);
 
-    // AssemblerCommand * commands_array[] = {
-    //     &ASSEMBLER_PUSH, &ASSEMBLER_ADD,
-    //     &ASSEMBLER_SUB,  &ASSEMBLER_MUL,
-    //     &ASSEMBLER_DIV,  &ASSEMBLER_SQRT,
-    //     &ASSEMBLER_SIN,  &ASSEMBLER_COS,
-    //     &ASSEMBLER_IN,   &ASSEMBLER_OUT,
-    //     &ASSEMBLER_HLT,  &ASSEMBLER_POP,
-    // };
-    // size_t commands_array_size = sizeof(commands_array) / sizeof(commands_array[0]);
-
-    // AssemblerRegister * registers_array[] = {
-    //     &ASSEMBLER_RAX, &ASSEMBLER_RBX,
-    //     &ASSEMBLER_RCX, &ASSEMBLER_RDX,
-    //     &ASSEMBLER_IP,
-    // };
-    // size_t registers_array_size = sizeof(registers_array) / sizeof(registers_array[0]);
-
     char * output_buffer = NULL;
     if ((output_buffer = (char *) calloc(buffer_size, sizeof(char))) == NULL)
     {
@@ -92,9 +76,6 @@ int main(int argc, char * argv[])
 
     free(pointers);
     free(buffer);
-
-    // puts("");
-    // printf("Result output buffer: %s\n", output_buffer);
 
     if ((target_fp = file_open(TARGET_FILE_NAME, "w")) == NULL)
     {

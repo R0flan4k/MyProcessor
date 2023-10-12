@@ -4,6 +4,7 @@
 #include "stack.h"
 #include "vtor.h"
 #include "my_assert.h"
+#include "hash.h"
 
 static int stack_resize(Stack * stk, StackResizes resize_mode);
 

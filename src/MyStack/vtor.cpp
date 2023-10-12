@@ -3,6 +3,7 @@
 
 #include "stack.h"
 #include "vtor.h"
+#include "hash.h"
 #include "my_assert.h"
 #include "cmd_input.h"
 
