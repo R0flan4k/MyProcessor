@@ -13,6 +13,7 @@
         Register_t rdx;
         unsigned int ip;
         char * bytecode;
+        size_t bytecode_size;
         Stack stk;
     };
 

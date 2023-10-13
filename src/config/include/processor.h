@@ -24,4 +24,9 @@
         IP =  5,
     };
 
+    enum PushModes {
+        REGISTER_MODE = 1 << 7,
+        NUMBER_MODE =   1 << 6,
+    };
+
 #endif

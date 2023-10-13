@@ -101,34 +101,35 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
     bool hlt_marker = false;
     PushMode push_mode = NULL_MODE;
     ProcessorRegisters register_ip = RAX;
+    char * bytecode_ptr = spu->bytecode;
 
     while (fscanf(fp, "%d", (int *) &command) != EOF) // huynsia
+    for (size_t i = 0; i < spu->bytecode_size; i++)
     {
-        switch (command)
+        switch ((ProcessorCommands) bytecode_ptr[i])
         {
             case PUSH:
-                if (!fscanf(fp, "%d", (int *) &push_mode))
-                {
-                    printf("Error: Invalid push.\n");
-                    break;
-                }
-
-                switch (push_mode)
+                i++;
+                switch ((PushModes) bytecode_ptr[i])
                 {
                     case PUSH_NUMBER:
-                        if (!fscanf(fp, ELEM_SPEC, &in_val))
-                        {
-                            printf("Error: Invalid push.\n");
-                            hlt_marker = true;
-                        }
+                        i++;
+                        in_val = *((Elem_t *) bytecode_ptr);
+                        // if (!fscanf(fp, ELEM_SPEC, &in_val))
+                        // {
+                        //     printf("Error: Invalid push.\n");
+                        //     hlt_marker = true;
+                        // }
                         break;
 
                     case PUSH_REGISTER:
-                        if (!fscanf(fp, "%d", (int *) &register_ip))
-                        {
-                            printf("Error: Invalid pushing register\n");
-                            hlt_marker = true;
-                        }
+                        i++;
+                        register_ip = (ProcessorRegisters) bytecode_ptr[i];
+                        // if (!fscanf(fp, "%d", (int *) &register_ip))
+                        // {
+                        //     printf("Error: Invalid pushing register\n");
+                        //     hlt_marker = true;
+                        // }
 
                         switch (register_ip)
                         {
@@ -160,7 +161,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 
                     case NULL_MODE:
                         printf("Error: can't push null mode\n");
-                        hlt_marker = true; //return blyat
+                        return errors; //return blyat
                         break;
 
                     default:
@@ -244,7 +245,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 break;
 
             case HLT:
-                hlt_marker = true;
+                return errors;
                 break;
 
             case POP:
@@ -253,11 +254,13 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                     return errors;
                 }
 
-                if (!fscanf(fp, "%d", (int *) &register_ip))
-                {
-                    printf("Error: Invalid pop.\n");
-                    break;
-                }
+                i++;
+                register_ip = (ProcessorRegisters) bytecode_ptr[i];
+                // if (!fscanf(fp, "%d", (int *) &register_ip))
+                // {
+                //     printf("Error: Invalid pop.\n");
+                //     break;
+                // }
                 switch (register_ip)
                 {
                     case RAX:
@@ -278,7 +281,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
 
                     case IP:
                         printf("Error: can't pop ip register\n");
-                        hlt_marker = true;
+                        return errors;
                         break;
 
                     default:
@@ -292,9 +295,6 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 MY_ASSERT(0 && "UNREACHABLE");
                 break;
         }
-
-        if (hlt_marker == true)
-            break;
 
         spu->ip++;
     }
