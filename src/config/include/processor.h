@@ -2,6 +2,12 @@
     #define PROCESSOR_H
 
     enum ProcessorCommands {
+//     #define assembler_create_command(str, sgnt, id, num_of_args)
+//         id,
+//
+//         #include "commands.h"
+//
+//     #undef
         HLT =  -1,
         PUSH = 1,
         ADD =  2,

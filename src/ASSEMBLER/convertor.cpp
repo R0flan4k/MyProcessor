@@ -8,6 +8,31 @@
 #include "stack.h"
 
 AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
+//     #define assembler_create_command(str, sgnt, id, param_num)
+//     {
+//         .command = command_str,
+//         .num_of_params = number_of_params,
+//         .hash = calculate_hash(const_cast <char *> (command_str), sizeof(command_str)),
+//         .signature = signature,
+//         .command_number = id,
+//     },
+//
+//     #include "commands.h"
+//
+//     #undef assembler_create_command
+
+
+
+
+
+
+
+
+
+
+
+
+
     assembler_create_command("push", NUMBER | REGISTER, PUSH, 1),
     assembler_create_command("add",  EMPTY,             ADD,  0),
     assembler_create_command("sub",  EMPTY,             SUB,  0),
@@ -15,11 +40,14 @@ AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
     assembler_create_command("div",  EMPTY,             DIV,  0),
     assembler_create_command("sqrt", EMPTY,             SQRT, 0),
     assembler_create_command("sin",  EMPTY,             SIN,  0),
+    assembler_create_command("sin",  EMPTY,             SIN,  0),
     assembler_create_command("cos",  EMPTY,             COS,  0),
     assembler_create_command("in",   EMPTY,             IN,   0),
     assembler_create_command("out",  EMPTY,             OUT,  0),
     assembler_create_command("hlt",  EMPTY,             HLT,  0),
     assembler_create_command("pop",  REGISTER,          POP,  1),
+    // assembler_create_command("meow", REGISTER,          MEOW, 1, 10),
+
 };
 size_t ASSEMBLER_COMMANDS_ARRAY_SIZE = sizeof(ASSEMBLER_COMMANDS_ARRAY) /
                                        sizeof(ASSEMBLER_COMMANDS_ARRAY[0]);

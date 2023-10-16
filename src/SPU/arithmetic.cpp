@@ -98,8 +98,6 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
     ProcessorCommands command = HLT;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
-    bool hlt_marker = false;
-    PushMode push_mode = NULL_MODE;
     ProcessorRegisters register_ip = RAX;
     char * bytecode_ptr = spu->bytecode;
 
@@ -110,7 +108,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
         {
             case PUSH:
                 i++;
-                switch ((PushModes) bytecode_ptr[i])
+                switch ((PushMode) bytecode_ptr[i])
                 {
                     case PUSH_NUMBER:
                         i++;

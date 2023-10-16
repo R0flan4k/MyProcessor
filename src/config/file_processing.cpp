@@ -31,7 +31,7 @@ FILE * file_open(const char * file_name, const char * mode)
 
 char * read_file(char * buffer, const size_t buffer_size, FILE * fp)
 {
-    if (fread(buffer, buffer_size, 1, fp))
+    if (fread(buffer, buffer_size, 1, fp) != 1)
     {
         printf("Error. Can't read the file.\n");
 
