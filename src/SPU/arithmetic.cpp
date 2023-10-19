@@ -6,6 +6,7 @@
 #include "my_assert.h"
 #include "spu.h"
 #include "processor.h"
+#include "vtor.h"
 
 
 Error_t get_two_values(Stack * stk, Elem_t * val1, Elem_t * val2)
@@ -92,27 +93,30 @@ Error_t spu_unary(Stack * stk, SpuUnaryMathOperations mode)
 }
 
 
-Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
+Error_t spu_process_comands(SoftProcessorUnit * spu)
 {
     Error_t errors;
-    ProcessorCommands command = HLT;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
     ProcessorRegisters register_ip = RAX;
     char * bytecode_ptr = spu->bytecode;
 
-    while (fscanf(fp, "%d", (int *) &command) != EOF) // huynsia
-    for (size_t i = 0; i < spu->bytecode_size; i++)
+    // while (fscanf(fp, "%d", (int *) &command) != EOF) // huynsia
+    for (size_t i = 0; i < spu->bytecode_size && bytecode_ptr[i] != HLT; i++)
     {
+        // printf("Command : %x\n", bytecode_ptr[i]);
         switch ((ProcessorCommands) bytecode_ptr[i])
         {
             case PUSH:
                 i++;
+                // printf("Mode : %d\n", bytecode_ptr[i]);
                 switch ((PushMode) bytecode_ptr[i])
                 {
                     case PUSH_NUMBER:
                         i++;
-                        in_val = *((Elem_t *) bytecode_ptr);
+                        in_val = *((Elem_t *) (bytecode_ptr + i));
+                        // printf("Pushed value : %lf\n", *((Elem_t *) (bytecode_ptr + i)));
+                        i += sizeof(Elem_t) - 1;
                         // if (!fscanf(fp, ELEM_SPEC, &in_val))
                         // {
                         //     printf("Error: Invalid push.\n");
@@ -123,6 +127,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                     case PUSH_REGISTER:
                         i++;
                         register_ip = (ProcessorRegisters) bytecode_ptr[i];
+                        // printf("Register id : %d\n", register_ip);
                         // if (!fscanf(fp, "%d", (int *) &register_ip))
                         // {
                         //     printf("Error: Invalid pushing register\n");
@@ -251,9 +256,12 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
                 {
                     return errors;
                 }
+                // printf("Taken value : %lf\n", out_val);
 
                 i++;
+                i++;
                 register_ip = (ProcessorRegisters) bytecode_ptr[i];
+                // printf("Register id: %d\n", register_ip);
                 // if (!fscanf(fp, "%d", (int *) &register_ip))
                 // {
                 //     printf("Error: Invalid pop.\n");
@@ -295,6 +303,9 @@ Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp)
         }
 
         spu->ip++;
+        // printf("IP %d --- done.\n", spu->ip);
+        // show_dump(&spu->stk, &errors);
+        // printf("\n\n");
     }
 
     return errors;

@@ -4,4 +4,3 @@ all:
 clean:
 	make --directory="./src/SPU/" clean
 	make --directory="./src/ASSEMBLER/" clean
-

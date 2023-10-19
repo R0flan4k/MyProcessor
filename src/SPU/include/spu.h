@@ -23,6 +23,6 @@
         PUSH_REGISTER = 2,
     };
 
-    Error_t spu_process_comands(SoftProcessorUnit * spu, FILE * fp);
+    Error_t spu_process_comands(SoftProcessorUnit * spu);
 
 #endif // SPU_H

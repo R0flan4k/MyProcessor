@@ -44,8 +44,13 @@ int main(int argc, char * argv[])
         return 1;
     }
 
+    // for (size_t k = 0; k < file_size; k++)            //
+    // {                                                       //
+    //     printf("%x ", (int) *(spu.bytecode + k));       ///
+    // }                                                           ////
+    // printf("\n");
 
-    if ((errors = spu_process_comands(&spu, fp)))
+    if ((errors = spu_process_comands(&spu)))
     {
         show_dump(&spu.stk, &errors);
         fclose(fp);

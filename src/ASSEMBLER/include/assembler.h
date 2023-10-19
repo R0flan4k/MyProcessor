@@ -66,7 +66,7 @@
     const size_t MAX_COMMAND_SIZE = 16;
 
     AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * output_buffer);
-    AssemblerErrors assembler_argument_processing(char const * buffer, char * output_buffer, int signature);
+    AssemblerErrors assembler_argument_processing(const char * * buffer, char * * output_buffer, int signature);
     AssemblerCommand assembler_create_command(const char * command_str, int signature, ProcessorCommands id, int number_of_params);
     AssemblerRegister assembler_create_register(const char * register_str, AssemblerRegisters id);
 

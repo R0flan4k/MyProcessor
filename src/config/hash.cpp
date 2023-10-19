@@ -10,15 +10,16 @@
         if (stk != nullptr)
         {
             char * pointer = (char *) stk;
-            char * start_pointer = pointer;
+            // char * start_pointer = pointer;
             char * end_pointer = (char *) stk + size - 1;
             Hash_t hash = 0;
             double value = 2;
-            Hash_t mod = 100000;
+            int start_pow = 8;
+            Hash_t mod = 13371337;
 
             while (pointer < end_pointer)
             {
-                hash += ((Hash_t) (pow(value, (double) (pointer - start_pointer)) * (*pointer))) % mod;
+                hash += ((Hash_t) (pow(value, (double) (start_pow + (end_pointer - pointer))) * (*pointer))) % mod;
 
                 pointer++;
             }
