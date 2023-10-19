@@ -20,6 +20,7 @@
         IN =   9,
         OUT =  10,
         POP =  11,
+        JMP =  12,
     };
 
     enum ProcessorRegisters {

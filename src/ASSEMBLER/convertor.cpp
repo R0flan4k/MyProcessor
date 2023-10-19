@@ -1,11 +1,19 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "assembler.h"
 #include "hash.h"
 #include "my_assert.h"
 #include "strings.h"
 #include "stack.h"
+#include "processor.h"
+
+static bool is_label(const char * string);
+static AssemblerErrors labels_array_ctor(Label_t * labels, size_t size);
+static AssemblerErrors add_label(const char * string, Label_t * labels, size_t size, int ip);
+
+const size_t LABELS_ARRAY_SIZE = 10;
 
 AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
 //     #define assembler_create_command(str, sgnt, id, param_num)
@@ -34,6 +42,7 @@ AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
     assembler_create_command("out",  EMPTY,             OUT,  0),
     assembler_create_command("hlt",  EMPTY,             HLT,  0),
     assembler_create_command("pop",  REGISTER,          POP,  1),
+    assembler_create_command("jmp",  NUMBER,            JMP,  1),
     // assembler_create_command("meow", REGISTER,          MEOW, 1, 10),
 
 };
@@ -56,8 +65,18 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
 
     AssemblerErrors error = NO_ERRORS;
 
+    Label_t labels[LABELS_ARRAY_SIZE] = {};
+    labels_array_ctor(labels, LABELS_ARRAY_SIZE);
+    int ip = 0;
+
     for (size_t i = 0; i < strings_num; i++)
     {
+        if (is_label(pointers[i]))
+        {
+            add_label(pointers[i], labels, LABELS_ARRAY_SIZE, ip);
+            continue;
+        }
+
         char const * buffer_ptr = pointers[i];
         char command[MAX_COMMAND_SIZE] = "";
         sscanf(pointers[i], "%s", command); // prosto po buferr_ptr
@@ -91,6 +110,8 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
                 }
             }
         }
+
+        ip++;
         // printf("\n\n");  //
     }
 
@@ -180,7 +201,7 @@ AssemblerCommand assembler_create_command(const char * command_str, int signatur
 }
 
 
-AssemblerRegister assembler_create_register(const char * register_str, AssemblerRegisters id)
+AssemblerRegister assembler_create_register(const char * register_str, ProcessorRegisters id)
 {
     AssemblerRegister rgstr = {
         .rgstr = register_str,
@@ -189,4 +210,38 @@ AssemblerRegister assembler_create_register(const char * register_str, Assembler
     };
 
     return rgstr;
+}
+
+
+static bool is_label(const char * string)
+{
+    return (*string == ':');
+}
+
+
+static AssemblerErrors labels_array_ctor(Label_t * labels, size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        labels[i] = -1;
+    }
+
+    return NO_ERRORS;
+}
+
+
+static AssemblerErrors add_label(const char * string, Label_t * labels, size_t size, int ip)
+{
+    char * ptr = strchr(string, ':');
+
+    MY_ASSERT(ptr);
+
+    int label_id = (int) (*(ptr + 1) - '0');
+
+    if (!(0 <= label_id && label_id < (int) size))
+        return INVALID_LABEL;
+
+    labels[label_id] = ip;
+
+    return NO_ERRORS;
 }

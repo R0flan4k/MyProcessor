@@ -1,11 +1,13 @@
 push 100 
 push 10
 pop rax   ; rax = 10
+:2
 push 11
 pop rbx   ; rbx = 11
 push 12  
 pop rcx   ; rcx = 12
 push 13
+jmp 2
 pop rdx   ; rdx = 13
 push rax  ; push 10
 push rbx  ; push 11

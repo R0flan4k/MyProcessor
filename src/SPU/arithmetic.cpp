@@ -296,6 +296,10 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
                 }
                 break;
 
+            case JMP:
+                i++;
+                i = *((size_t *) &(bytecode_ptr[i])) - 1; // EXIT POINT
+                break;
 
             default:
                 MY_ASSERT(0 && "UNREACHABLE");
