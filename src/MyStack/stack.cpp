@@ -6,11 +6,23 @@
 #include "my_assert.h"
 #include "hash.h"
 
+enum StackResizes {
+    STACK_EXPAND,
+    STACK_CONSTRICT
+};
+
 static int stack_resize(Stack * stk, StackResizes resize_mode);
+static Elem_t * stack_data_to_raw(Stack * stk);
+static Elem_t * stack_raw_to_data(void * data);
+
+const int STACK_EXPAND_COEFFICIENT = 2;
+const int STACK_CONSTRICT_COEFFICIENT = 4;
 
 
 Error_t stack_ctor(Stack * stk)
 {
+    MY_ASSERT(stk);
+
     Elem_t * tmp = NULL;
     Error_t errors = 0;
 
@@ -52,9 +64,16 @@ Error_t stack_ctor(Stack * stk)
 
 Error_t stack_dtor(Stack * stk)
 {
+    MY_ASSERT(stk);
+
     Error_t errors = 0;
 
-    if (stk->data == nullptr && stk->capacity == STACK_POISON && stk->size == STACK_POISON)
+    if ((errors = stack_vtor(stk)))
+    {
+        return errors;
+    }
+
+    if (!stk->data && stk->capacity == STACK_POISON && stk->size == STACK_POISON)
     {
         errors |= STACKERRORS_CANT_DESTRUCT;
 
@@ -77,6 +96,8 @@ Error_t stack_dtor(Stack * stk)
 
 Error_t stack_push(Stack * stk, const Elem_t value)
 {
+    MY_ASSERT(stk);
+
     stk->hash = stack_recalculate_hash(stk, sizeof(Stack));
     stk->data_hash = calculate_hash(stk->data, stk->capacity * sizeof(Elem_t));
 
@@ -114,6 +135,9 @@ Error_t stack_push(Stack * stk, const Elem_t value)
 
 Error_t stack_pop(Stack * stk, Elem_t * value)
 {
+    MY_ASSERT(stk);
+    MY_ASSERT(value);
+
     Error_t errors = stack_vtor(stk);
 
     if (errors)
@@ -153,19 +177,27 @@ Error_t stack_pop(Stack * stk, Elem_t * value)
        // Error_t
 static int stack_resize(Stack * stk, StackResizes resize_mode)
 {
+    MY_ASSERT(stk);
+
     Elem_t * pointer = NULL;
 
     if (resize_mode == STACK_EXPAND)
     {
-        if ((pointer = (Elem_t *) realloc(stack_data_to_raw(stk), (stk->capacity * sizeof(Elem_t)) * STACK_EXPAND_COEFFICIENT + (2 * sizeof(Jagajaga_t)))) == NULL)
-            return 1;
-
         *stack_get_data_right_jagajaga(stk) = 0;
+
+        if (!(pointer = (Elem_t *) realloc(stack_data_to_raw(stk), (stk->capacity * sizeof(Elem_t)) * STACK_EXPAND_COEFFICIENT + (2 * sizeof(Jagajaga_t)))))
+        {
+            free(stack_data_to_raw(stk));
+            return 1;
+        }
     }
     else // resize_mode == STACK_CONSTRICT
     {
-        if ((pointer = (Elem_t *) realloc(stack_data_to_raw(stk), (stk->capacity * sizeof(Elem_t)) / STACK_EXPAND_COEFFICIENT + (2 * sizeof(Jagajaga_t)))) == NULL)
+        if (!(pointer = (Elem_t *) realloc(stack_data_to_raw(stk), (stk->capacity * sizeof(Elem_t)) / STACK_EXPAND_COEFFICIENT + (2 * sizeof(Jagajaga_t)))))
+        {
+            free(stack_data_to_raw(stk));
             return 1;
+        }
     }
 
 
@@ -180,17 +212,17 @@ static int stack_resize(Stack * stk, StackResizes resize_mode)
 
 Jagajaga_t * stack_get_data_left_jagajaga(const Stack * stk)
 {
-    return (stk->data != nullptr ? ((Jagajaga_t *) stk->data - 1) : 0);
+    return (stk->data ? ((Jagajaga_t *) stk->data - 1) : 0);
 }
 
 
 Jagajaga_t * stack_get_data_right_jagajaga(const Stack * stk)
 {
-    return (stk->data != nullptr ? ((Jagajaga_t *) (stk->data + stk->capacity)) : 0);
+    return (stk->data ? ((Jagajaga_t *) (stk->data + stk->capacity)) : 0);
 }
 
 
-Elem_t * stack_data_to_raw(Stack * stk)
+static Elem_t * stack_data_to_raw(Stack * stk)
 {
     #ifndef NCANARYPROTECTION
         return (Elem_t *) ((Jagajaga_t *) stk->data - 1);
@@ -200,7 +232,7 @@ Elem_t * stack_data_to_raw(Stack * stk)
 }
 
 
-Elem_t * stack_raw_to_data(void * data)
+static Elem_t * stack_raw_to_data(void * data)
 {
     #ifndef NCANARYPROTECTION
         return (Elem_t *) ((Jagajaga_t *) data + 1);

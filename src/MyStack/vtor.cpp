@@ -3,12 +3,14 @@
 
 #include "stack.h"
 #include "vtor.h"
-#include "hash.h"
 #include "my_assert.h"
 #include "cmd_input.h"
+#include "hash.h"
 
-
-FILE * OUTPUT_ERROR_FILE = stderr;
+struct StackError {
+    StackErrorsMasks mask;
+    const char * output_error;
+};
 
 StackError INVALID_SIZE = {
     .mask = STACKERRORS_INVALID_SIZE,
@@ -88,19 +90,24 @@ StackError SPOILED_DATA_HASH_VALUE = {
 
 Error_t stack_vtor(Stack * const stk)
 {
+    Error_t verificator = 0;
     Hash_t stack_tmp_hash = stk->hash;
     Hash_t data_tmp_hash =  stk->data_hash;
-    Error_t verificator = 0;
 
     if (stk->size < 0)              verificator |= STACKERRORS_INVALID_SIZE;
     if (stk->capacity < 0)          verificator |= STACKERRORS_INVALID_CAPACITY;
     if (stk->size >= stk->capacity) verificator |= STACKERRORS_INVALID_SIZECAPACITY;
-    if (stk->data == nullptr)       verificator |= STACKERRORS_INVALID_DATA;
     if (stk->left_jagajaga != STACK_JAGAJAGA_VALUE)            verificator |= STACKERRORS_SPOILED_LEFT_JAGAJAGA;
     if (stk->right_jagajaga != STACK_JAGAJAGA_VALUE)           verificator |= STACKERRORS_SPOILED_RIGHT_JAGAJAGA;
+    if (stack_tmp_hash != stack_recalculate_hash(stk, sizeof(Stack))) verificator |= STACKERRORS_SPOILED_HASH_VALUE;
+
+    if (!stk->data)
+    {
+        verificator |= STACKERRORS_INVALID_DATA;
+        return verificator;
+    }
     if (*stack_get_data_left_jagajaga(stk) != STACK_JAGAJAGA_VALUE)  verificator |= STACKERRORS_SPOILED_DATA_LEFT_JAGAJAGA;
     if (*stack_get_data_right_jagajaga(stk) != STACK_JAGAJAGA_VALUE) verificator |= STACKERRORS_SPOILED_DATA_RIGHT_JAGAJAGA;
-    if (stack_tmp_hash != stack_recalculate_hash(stk, sizeof(Stack)))                      verificator |= STACKERRORS_SPOILED_HASH_VALUE;
     if (data_tmp_hash != calculate_hash(stk->data, stk->capacity *  sizeof(Elem_t))) verificator |= STACKERRORS_SPOILED_DATA_HASH_VALUE;
 
     stk->data_hash = data_tmp_hash;
@@ -175,7 +182,7 @@ void show_dump_basis(const Stack * stk, const char * stack_name, const Error_t *
         while (j < array_size)
         {
             if (errors[j]->mask & *verificator)
-                fprintf(OUTPUT_ERROR_FILE, RED_COLOR "%s" DEFAULT_COLOR, errors[j]->output_error);
+                fprintf(stderr, RED_COLOR "%s" DEFAULT_COLOR, errors[j]->output_error);
 
             j++;
         }

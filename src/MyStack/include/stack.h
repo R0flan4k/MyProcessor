@@ -27,16 +27,6 @@
         STACKERRORS_SPOILED_DATA_HASH_VALUE =     1 << 14,
     };
 
-    enum StackResizes {
-        STACK_EXPAND,
-        STACK_CONSTRICT
-    };
-
-    struct StackError {
-        StackErrorsMasks mask;
-        const char * output_error;
-    };
-
 // #define ENABLE_CANARY(...)
 // #ifdef NCANARYPROTECTION
 //
@@ -56,8 +46,6 @@
 
     const int STACK_START_CAPACITY = 16;
     const int STACK_POISON = 0x70FEEFEE;
-    const int STACK_EXPAND_COEFFICIENT = 2;
-    const int STACK_CONSTRICT_COEFFICIENT = 4;
     Elem_t * const STACK_POISON_PTR = NULL;
     const Jagajaga_t STACK_JAGAJAGA_VALUE = 0xAB00B1EABCDEF;
 
@@ -72,7 +60,5 @@
     Hash_t stack_recalculate_hash(Stack * stk, const size_t size);
     Jagajaga_t * stack_get_data_left_jagajaga(const Stack * stk);
     Jagajaga_t * stack_get_data_right_jagajaga(const Stack * stk);
-    Elem_t * stack_data_to_raw(Stack * stk);
-    Elem_t * stack_raw_to_data(void * data);
 
 #endif // STACK_H

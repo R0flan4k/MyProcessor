@@ -23,12 +23,6 @@
 
 #else // NHASHPROTECTION
 
-    Hash_t calculate_hash(Stack * stk, const size_t size)
-    {
-        return (Hash_t) 0;
-    }
-
-
     Hash_t stack_recalculate_hash(Stack * stk, const size_t size)
     {
         return (Hash_t) 0;
