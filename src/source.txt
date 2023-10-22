@@ -1,27 +1,17 @@
-push 100 
+push 1
+pop rax
+push 1
+pop rax
+:1
 push 10
-pop rax   ; rax = 10
-:2
-push 11
-pop rbx   ; rbx = 11
-push 12  
-pop rcx   ; rcx = 12
-push 13
-jmp 2
-pop rdx   ; rdx = 13
-push rax  ; push 10
-push rbx  ; push 11
-push rcx  ; push 12
-push rdx  ; push 13
-push ip   ; push 13 
-mul
-mul
-mul
-mul
-mul ; 100 * 10 * 11 * 12 * 13 * 13
 out
-in
-out
+push 1
+push rax
+add
+pop rax
+push rax
+push 10
+jb 1
 hlt
 push rax
 out

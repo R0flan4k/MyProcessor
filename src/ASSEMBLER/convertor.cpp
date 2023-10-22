@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -16,35 +17,12 @@ static AssemblerErrors add_label(const char * string, Label_t * labels, size_t s
 const size_t LABELS_ARRAY_SIZE = 10;
 
 AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
-//     #define assembler_create_command(str, sgnt, id, param_num)
-//     {
-//         .command = command_str,
-//         .num_of_params = number_of_params,
-//         .hash = calculate_hash(const_cast <char *> (command_str), sizeof(command_str)),
-//         .signature = signature,
-//         .command_number = id,
-//     },
-//
-//     #include "commands.h"
-//
-//     #undef assembler_create_command
+    #define CMD(str, signature, enum_id, num_of_params, id, code) \
+        assembler_create_command(str, signature, enum_id, num_of_params),
 
+    #include "commands.h"
 
-    assembler_create_command("push", NUMBER | REGISTER, PUSH, 1),
-    assembler_create_command("add",  EMPTY,             ADD,  0),
-    assembler_create_command("sub",  EMPTY,             SUB,  0),
-    assembler_create_command("mul",  EMPTY,             MUL,  0),
-    assembler_create_command("div",  EMPTY,             DIV,  0),
-    assembler_create_command("sqrt", EMPTY,             SQRT, 0),
-    assembler_create_command("sin",  EMPTY,             SIN,  0),
-    assembler_create_command("cos",  EMPTY,             COS,  0),
-    assembler_create_command("in",   EMPTY,             IN,   0),
-    assembler_create_command("out",  EMPTY,             OUT,  0),
-    assembler_create_command("hlt",  EMPTY,             HLT,  0),
-    assembler_create_command("pop",  REGISTER,          POP,  1),
-    assembler_create_command("jmp",  NUMBER,            JMP,  1),
-    // assembler_create_command("meow", REGISTER,          MEOW, 1, 10),
-
+    #undef CMD
 };
 size_t ASSEMBLER_COMMANDS_ARRAY_SIZE = sizeof(ASSEMBLER_COMMANDS_ARRAY) /
                                        sizeof(ASSEMBLER_COMMANDS_ARRAY[0]);
@@ -59,21 +37,24 @@ AssemblerRegister ASSEMBLER_REGISTERS_ARRAY[] = {
 size_t ASSEMBLER_REGISTERS_ARRAY_SIZE = sizeof(ASSEMBLER_COMMANDS_ARRAY) /
                                         sizeof(ASSEMBLER_COMMANDS_ARRAY[0]);
 
-AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * output_buffer)
+Label_t LABELS[LABELS_ARRAY_SIZE] = {}; // v assembler_convert
+
+AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * start_output_buffer)
 {
-    MY_ASSERT(pointers != nullptr && output_buffer != nullptr);
+    MY_ASSERT(pointers != nullptr && start_output_buffer != nullptr);
 
     AssemblerErrors error = NO_ERRORS;
 
-    Label_t labels[LABELS_ARRAY_SIZE] = {};
-    labels_array_ctor(labels, LABELS_ARRAY_SIZE);
+    labels_array_ctor(LABELS, LABELS_ARRAY_SIZE);
     int ip = 0;
+    char * output_buffer = start_output_buffer;
 
     for (size_t i = 0; i < strings_num; i++)
     {
+
         if (is_label(pointers[i]))
         {
-            add_label(pointers[i], labels, LABELS_ARRAY_SIZE, ip);
+            add_label(pointers[i], LABELS, LABELS_ARRAY_SIZE, output_buffer - start_output_buffer);
             continue;
         }
 
@@ -82,23 +63,11 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
         sscanf(pointers[i], "%s", command); // prosto po buferr_ptr
         buffer_ptr = skip_word(buffer_ptr);
         Hash_t string_hash = calculate_hash(command, strlen(command) + 1);
-        // printf("---( %d )---\n", i + 1);
-        // printf("Command : %s ; ", command);                         //
-        // for (size_t q = 0; q < strlen(command); q++)
-        // {
-        //     printf("%x ", (int) *((char *) command + q));
-        // }
-        // printf("\n");
-        // printf("Strlen : %zd\n", strlen(command) + 1);
-        // printf("Current hash : %lld ; ", string_hash);    //
-
         for (size_t j = 0; j < ASSEMBLER_COMMANDS_ARRAY_SIZE; j++)
         {
             if (string_hash == ASSEMBLER_COMMANDS_ARRAY[j].hash)
             {
-                // printf("Founded hash : %lld ;\n", ASSEMBLER_COMMANDS_ARRAY[j].hash); //
                 *output_buffer = (char) ASSEMBLER_COMMANDS_ARRAY[j].command_number;
-                // printf("Puten byte : %x\n", (int) *(output_buffer));  //
                 output_buffer++;
 
                 for (int k = 0; k < ASSEMBLER_COMMANDS_ARRAY[j].num_of_params; k++)
@@ -112,7 +81,6 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
         }
 
         ip++;
-        // printf("\n\n");  //
     }
 
     return NO_ERRORS;
@@ -132,22 +100,12 @@ AssemblerErrors assembler_argument_processing(const char * * buffer, char * * ou
         {
             *buffer = skip_word(*buffer);
             *(*output_buffer) = (char) PUSH_NUMBER;
-            // printf("Mode : %d ;\n", (int) *(*output_buffer));
             (*output_buffer)++;
-            // *((Elem_t *) output_buffer) = val;
-            // char * metka = *output_buffer;   //
             for (size_t k = 0; k < sizeof(Elem_t); k++)
             {
                 *(*output_buffer) = *((char *) &val + k);
                 (*output_buffer)++;
             }
-            // printf("Value : %lf ; ", *((Elem_t *) metka)); //
-            // for (int h = 0; h < 8; h++)
-            // {
-            //     printf("%x ", (int) *(metka + h));
-            // }
-            // printf("\n");
-            // output_buffer += sizeof(Elem_t);
             success = true;
         }
         ///
@@ -166,16 +124,22 @@ AssemblerErrors assembler_argument_processing(const char * * buffer, char * * ou
                 {
                     *buffer = skip_word(*buffer);
                     *(*output_buffer) = (char) PUSH_REGISTER;
-                    // printf("Mode : %d\n", (int) *(*output_buffer)); //
                     (*output_buffer)++;
                     *(*output_buffer) = (char) ASSEMBLER_REGISTERS_ARRAY[i].id;
-                    // printf("Register id: %d\n", ASSEMBLER_REGISTERS_ARRAY[i].id); //
                     (*output_buffer)++;
                     success = true;
                     break;
                 }
             }
         }
+    }
+
+    if (signature & LABEL && success == false)
+    {
+        int label_id = atoi(*buffer);
+        *(*output_buffer) = (char) LABELS[label_id];
+        (*output_buffer)++;
+        success = true;
     }
 
     if (!(signature & EMPTY) && success == false)

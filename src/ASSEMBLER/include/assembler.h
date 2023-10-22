@@ -23,7 +23,8 @@
     enum AssemblerSignatures {
         REGISTER = 1,
         NUMBER   = 1 << 1,
-        EMPTY    = 1 << 2,
+        LABEL    = 1 << 2,
+        EMPTY    = 1 << 3,
     };
 
     struct AssemblerCommand {
