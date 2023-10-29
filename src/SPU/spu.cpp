@@ -24,6 +24,8 @@ int main(int argc, char * argv[])
     if ((errors = stack_ctor(&spu.stk)))
         return errors;
 
+    if ((errors = stack_ctor(&spu.call_stk)))
+        return errors;
 
     if (!(fp = file_open(SPU_FILE_NAME, "rb")))
         return 1;
@@ -46,7 +48,7 @@ int main(int argc, char * argv[])
 
     if ((errors = spu_process_comands(&spu)))
     {
-        show_dump(&spu.stk, &errors);
+        spu_dump(&spu, &errors);
         fclose(fp);
         free(spu.bytecode);
         return errors;

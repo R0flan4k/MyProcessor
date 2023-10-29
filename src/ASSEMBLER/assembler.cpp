@@ -68,36 +68,15 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    // for (size_t i = 0; i < ASSEMBLER_COMMANDS_ARRAY_SIZE; i++)
-    // {
-    //     printf("%s hash : %lld\n", ASSEMBLER_COMMANDS_ARRAY[i].command, ASSEMBLER_COMMANDS_ARRAY[i].hash);
-    // }
-
-    AssemblerErrors errors = NO_ERRORS;
+    AssemblerErrors errors = ASSEMBLER_NO_ERRORS;
 
     if ((errors = assembler_convert(pointers, strings_num, output_buffer)))
     {
-        printf("Assembler error code: %d", (int) errors);
+        printf("Assembler error code: %d\n", (int) errors);
         return errors;
     }
 
-    // printf("100 on bytes:\n");
-    // Elem_t tmp_value = 100;
-    // printf("%x ", (int) *((char *) &tmp_value));
-    // printf("%x ", (int) *((char *) &tmp_value + 1));
-    // printf("%x ", (int) *((char *) &tmp_value + 2));
-    // printf("%x ", (int) *((char *) &tmp_value + 3));
-    // printf("%x ", (int) *((char *) &tmp_value + 4));
-    // printf("%x ", (int) *((char *) &tmp_value + 5));
-    // printf("%x ", (int) *((char *) &tmp_value + 6));
-    // printf("%x ", (int) *((char *) &tmp_value + 7));
-    // printf("\n");
-
-    // printf("Output buffer:\n");
-    // for (int i = 0; i < buffer_size; i++)
-    // {
-    //     printf("%x ", (int) output_buffer[i]);
-    // }
+    assembler_dump(pointers, strings_num, output_buffer, buffer_size);
 
     free(pointers);
     free(buffer);

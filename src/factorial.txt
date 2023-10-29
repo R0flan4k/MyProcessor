@@ -1,0 +1,27 @@
+in
+pop rdx  ; rdx = N
+
+push 1
+pop rbx
+
+push 1
+pop rax  ; rax = q_i
+
+:1
+push 1
+push rax
+add
+pop rax
+
+push rbx
+push rax
+mul
+pop rbx
+
+push rax
+push rdx
+jb :1
+
+push rbx
+out
+hlt

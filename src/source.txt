@@ -1,22 +1,58 @@
+push 123456	
+pop [1]
+push [1]
+out
 push 1
-pop rax
 push 1
 pop rax
 :1
-push 10
-out
-push 1
 push rax
+push 1
 add
 pop rax
+push rax 
+out
 push rax
 push 10
-jb 1
+jb :1
 hlt
+in
+pop rdx     ;  rdx = N
+
+push 2
+pop rcx     ;  rcx = count
+
+push 1   
+pop rax     ;  rax = n - 2
+
+push 1
+pop rbx     ;  rbx = n - 1
+
+:1
+
+push 1      
+push rcx
+add
+pop rcx
 push rax
-out
+push rbx
+add
+push rbx
+pop rax
+pop rbx
+
+push rcx
+push rdx
+jbe :1
+
+out 
 hlt
-push 1000
-push 10
-out
-out
+
+; enumi -> norm
+; dumpi
+; ram
+; defini v commands.h
+; obrabotky signatur v funciyu
+
+
+
