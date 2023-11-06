@@ -12,7 +12,12 @@ git clone https://github.com/R0flan4k/Stack.git
 
 Second step:
 ~~~
-make
+cd ./MyProcessor
+~~~
+
+Third step:
+~~~
+Make
 ~~~
 
 ## Usage:
@@ -21,7 +26,12 @@ To run standart factorial solver program:
 make factorial
 ~~~
 
-To run your assembler program (./src/source.txt):
+To run standart quadratic equation solver:
+~~~
+make quadratic
+~~~
+
+To run your assembler program (./AsmSrc/source.txt):
 ~~~
 make run
 ~~~
