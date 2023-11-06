@@ -7,7 +7,7 @@ Bend the repository and compile the files
 
 First step:
 ~~~
-git clone https://github.com/R0flan4k/Stack.git
+git clone https://github.com/R0flan4k/MyProcessor.git
 ~~~
 
 Second step:
