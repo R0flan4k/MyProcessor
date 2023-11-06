@@ -1,5 +1,10 @@
 in
-pop rdx  ; rdx = N
+call :factorial
+hlt
+
+
+:factorial
+pop rdx
 
 push 1
 pop rbx
@@ -7,7 +12,7 @@ pop rbx
 push 1
 pop rax  ; rax = q_i
 
-:1
+:step    ; fact name
 push 1
 push rax
 add
@@ -20,8 +25,8 @@ pop rbx
 
 push rax
 push rdx
-jb :1
+jb :step
 
 push rbx
 out
-hlt
+ret

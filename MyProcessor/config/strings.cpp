@@ -84,3 +84,14 @@ char * next_word(const char * buffer)
 
     return const_cast <char *> (buffer + 1);
 }
+
+
+char * skip_spaces(const char * buffer)
+{
+    MY_ASSERT(buffer);
+
+    while (isspace(*buffer) && *buffer != EOF && *buffer != '\0' && *buffer != ';')
+        buffer++;
+
+    return const_cast <char *> (buffer);
+}

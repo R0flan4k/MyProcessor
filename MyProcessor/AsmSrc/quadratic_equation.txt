@@ -1,0 +1,57 @@
+in
+in
+in
+call :quadratic_solver
+hlt
+
+:quadratic_solver
+pop rax		; rax = a
+pop rbx		; rbx = b
+pop rcx		; rcx = c
+
+push rbx
+push rbx
+mul
+
+push 4
+push rax
+push rcx
+
+mul
+mul
+sub
+
+pop rdx		; rdx = D
+
+push 0
+push rbx
+sub
+
+push 2
+push rax
+mul
+
+div
+pop rbx		; rbx = -b / 2a
+
+push rdx
+sqrt
+
+push 2
+push rax
+mul
+
+div
+pop rdx		; rdx = sqrt(D) / 2a
+
+push rbx
+push rdx
+add
+out
+
+push rbx
+push rdx
+sub
+out
+
+ret

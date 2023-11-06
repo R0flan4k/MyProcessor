@@ -107,10 +107,9 @@ Error_t spu_unary(Stack * stk, SpuUnaryMathOperations mode)
 
 Error_t spu_process_comands(SoftProcessorUnit * spu)
 {
-    Error_t errors;
+    Error_t errors = 0;
     Elem_t in_val = 0;
     Elem_t out_val = 0;
-    ProcessorRegisters register_ip = PROCESSOR_REGISTER_RAX;
     char * bytecode_ptr = spu->bytecode;
 
     for (spu->ip = 0; spu->ip < spu->bytecode_size && bytecode_ptr[spu->ip] != PROCESSOR_COMMAND_HLT; spu->ip++)
@@ -125,9 +124,151 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
 
             #define SPU_STACK_POP(val) \
                 if ((errors = stack_pop(&spu->stk, (val))))    \
-            {                                                  \
+                {                                              \
                     return errors;                             \
                 }
+
+            #define SPU_CALL_STACK_PUSH(val) \
+                if ((errors = stack_push(&spu->call_stk, (val))))   \
+                {                                                   \
+                    return errors;                                  \
+                }
+
+            #define SPU_CALL_STACK_POP(val) \
+                if ((errors = stack_pop(&spu->call_stk, (val))))    \
+                {                                                   \
+                    return errors;                                  \
+                }
+
+            #define JUMP \
+                spu->ip = (size_t) *((char *) &(bytecode_ptr[spu->ip])) - 1;
+
+            #define JUMP_IF(exp) \
+                if (exp)         \
+                {                \
+                    JUMP;        \
+                }
+
+            #define RETURN \
+                SPU_CALL_STACK_POP(&out_val); \
+                spu->ip = (size_t) out_val;   \
+                spu->ip++;
+
+            #define NEXT_BYTE \
+                spu->ip++;
+
+            #define UNREACHABLE \
+                MY_ASSERT(0 && "UNREACHABLE");
+
+            #define ARGUMENT_PROCESS(number_code, register_code, label_code, \
+                                     ram_code, empty_code) \
+                switch ((ProcessorSignatures) bytecode_ptr[spu->ip])         \
+                {                                                            \
+                    case PROCESSOR_SIGNATURE_NUMBER:                         \
+                        NEXT_BYTE;                                           \
+                        number_code;                                       \
+                        break;                                               \
+                                                                             \
+                    case PROCESSOR_SIGNATURE_REGISTER:                       \
+                        NEXT_BYTE;                                           \
+                        register_code;                                     \
+                        break;                                               \
+                                                                             \
+                    case PROCESSOR_SIGNATURE_LABEL:                          \
+                        NEXT_BYTE;                                           \
+                        label_code;                                        \
+                        break;                                               \
+                                                                             \
+                    case PROCESSOR_SIGNATURE_RAM:                            \
+                        NEXT_BYTE;                                           \
+                        ram_code;                                          \
+                        break;                                               \
+                                                                             \
+                    case PROCESSOR_SIGNATURE_EMPTY:                          \
+                        NEXT_BYTE;                                           \
+                        empty_code;                                        \
+                        break;                                               \
+                                                                             \
+                    default:                                                 \
+                        UNREACHABLE                                          \
+                        break;                                               \
+                }
+
+            #define REGISTER_PROCESS(rax_code, rbx_code,            \
+                                     rcx_code, rdx_code, ip_code)   \
+                switch ((ProcessorRegisters) bytecode_ptr[spu->ip]) \
+                {                                                   \
+                    case PROCESSOR_REGISTER_RAX:                    \
+                        rax_code;                                 \
+                        break;                                      \
+                                                                    \
+                    case PROCESSOR_REGISTER_RBX:                    \
+                        rbx_code;                                 \
+                        break;                                      \
+                                                                    \
+                    case PROCESSOR_REGISTER_RCX:                    \
+                        rcx_code;                                 \
+                        break;                                      \
+                                                                    \
+                    case PROCESSOR_REGISTER_RDX:                    \
+                        rdx_code;                                 \
+                        break;                                      \
+                                                                    \
+                    case PROCESSOR_REGISTER_IP:                     \
+                        ip_code;                                  \
+                        break;                                      \
+                                                                    \
+                    default:                                        \
+                        UNREACHABLE;                                \
+                        break;                                      \
+                }
+
+            #define CURRENT_NUMBER \
+                *((Elem_t *) (bytecode_ptr + spu->ip))
+
+            #define CURRENT_REGISTER(rgstr) \
+                spu->rgstr
+
+            #define ASSIGN_NUMBER(val) \
+                (val) = CURRENT_NUMBER;
+
+            #define SKIP_EIGHT_BYTES \
+                spu->ip += sizeof(Elem_t) - 1;
+
+            #define ASSIGN_REGISTER(val, rgstr) \
+                (val) = CURRENT_REGISTER(rgstr);
+
+            #define ASSIGN_RAM(val, ram_index) \
+                (val) = spu->ram[(int) ram_index];
+
+            #define BINARY_OPERATION(operation) \
+                if ((errors = spu_binary(&spu->stk, BINARY_MATH_OPERATION_ ## operation))) \
+                {                                                                          \
+                    return errors;                                                         \
+                }
+
+            #define UNARY_OPERATION(operation) \
+                if ((errors = spu_unary(&spu->stk, UNARY_MATH_OPERATION_ ## operation)))   \
+                {                                                                          \
+                    return errors;                                                         \
+                }
+
+            #define SCAN_VALUE(val) \
+                if (!scanf(ELEM_SPEC, val))             \
+                {                                       \
+                    printf("Error: Invalid input.\n");  \
+                    break;                              \
+                }
+
+            #define ASSIGN_TO_REGISTER(rgstr, val) \
+                CURRENT_REGISTER(rgstr) = (val);
+
+            #define ASSIGN_TO_RAM(ram_index, val) \
+                spu->ram[(int) ram_index] = (val);
+
+            #define CANT_POP_IP_ERROR \
+                printf("Error: can't pop ip register\n"); \
+                return errors;
 
             #define CMD(str, signature, enum_id, num_of_params, id, code)\
                 case PROCESSOR_COMMAND_ ## enum_id: \
@@ -137,10 +278,34 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
             #include "commands.h"
 
             #undef CMD
+            #undef SPU_STACK_PUSH
+            #undef SPU_STACK_POP
+            #undef SPU_CALL_STACK_PUSH
+            #undef SPU_CALL_STACK_POP
+            #undef JUMP
+            #undef JUMP_IF
+            #undef RETURN
+            #undef NEXT_BYTE
+            #undef UNREACHABLE
+            #undef ARGUMENT_PROCESS
+            #undef REGISTER_PROCESS
+            #undef CURRENT_NUMBER
+            #undef CURRENT_REGISTER
+            #undef ASSIGN_NUMBER
+            #undef SKIP_EIGHT_BYTES
+            #undef ASSIGN_REGISTER
+            #undef ASSIGN_RAM
+            #undef BINARY_OPERATION
+            #undef UNARY_OPERATION
+            #undef SCAN_VALUE
+            #undef ASSIGN_TO_REGISTER
+            #undef ASSIGN_TO_RAM
+            #undef CANT_POP_IP_ERROR
 
             default:
                 spu_dump(spu, &errors);
-                MY_ASSERT(0 && "UNREACHABLE");
+                printf("The program is empty.\n");
+                return errors;
                 break;
         }
     }
@@ -149,7 +314,8 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
 }
 
 
-void spu_dump_basis(const SoftProcessorUnit * spu, const char * spu_name, const Error_t * verificator, const char * func, const int line, const char * file)
+void spu_dump_iternal(const SoftProcessorUnit * spu, const char * spu_name, const Error_t * verificator,
+                    const char * func, const int line, const char * file)
 {
     MY_ASSERT(spu);
     MY_ASSERT(spu_name);

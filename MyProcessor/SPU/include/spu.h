@@ -4,7 +4,7 @@
     #include "stack.h"
     #include "file_processing.h"
 
-    #define spu_dump(spu, verificator) spu_dump_basis((spu), #spu, (verificator), __func__, __LINE__, __FILE__)
+    #define spu_dump(spu, verificator) spu_dump_iternal((spu), #spu, (verificator), __func__, __LINE__, __FILE__)
 
     typedef Elem_t Register_t;
 
@@ -24,7 +24,7 @@
     };
 
     Error_t spu_process_comands(SoftProcessorUnit * spu);
-    void spu_dump_basis(const SoftProcessorUnit * spu, const char * spu_name, const Error_t * verificator, const char * func, const int line, const char * file);
+    void spu_dump_iternal(const SoftProcessorUnit * spu, const char * spu_name, const Error_t * verificator, const char * func, const int line, const char * file);
 
 
 #endif // SPU_H

@@ -12,13 +12,18 @@
 
 static bool try_process_signature_number(const char * * buffer, char * * output_buffer);
 static bool try_process_signature_register(const char * * buffer, char * * output_buffer);
-static bool try_process_signature_label(const char * * buffer, char * * output_buffer);
+static bool try_process_signature_label(const char * * buffer, char * * output_buffer, Label_t * labels, size_t size);
 static bool try_process_signature_ram(const char * * buffer, char * * output_buffer);
 static bool is_label(const char * string);
-static AssemblerErrors labels_array_ctor(Label_t * labels, size_t size);
 static AssemblerErrors add_label(const char * string, Label_t * labels, size_t size, int ip);
+static AssemblerErrors labels_dtor(Label_t * labels, size_t size);
+static AssemblerErrors assembler_argument_processing(const char * * buffer, char * * output_buffer, int signature,
+                                                     Label_t * labels, size_t size);
+static AssemblerCommand assembler_create_command(const char * command_str, int signature, ProcessorCommands id, int number_of_params);
+static AssemblerRegister assembler_create_register(const char * register_str, ProcessorRegisters id);
 
 const size_t LABELS_ARRAY_SIZE = 10;
+const size_t MAX_COMMAND_SIZE = 64;
 
 AssemblerCommand ASSEMBLER_COMMANDS_ARRAY[] = {
     #define CMD(str, signature, enum_id, num_of_params, id, code) \
@@ -41,31 +46,37 @@ AssemblerRegister ASSEMBLER_REGISTERS_ARRAY[] = {
 size_t ASSEMBLER_REGISTERS_ARRAY_SIZE = sizeof(ASSEMBLER_COMMANDS_ARRAY) /
                                         sizeof(ASSEMBLER_COMMANDS_ARRAY[0]);
 
-Label_t LABELS[LABELS_ARRAY_SIZE] = {}; // v assembler_convert
+static int CONVERTOR_CALL_NUMBER = 0;
 
 AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_num, char * start_output_buffer)
 {
-    MY_ASSERT(pointers != nullptr && start_output_buffer != nullptr);
+    MY_ASSERT(pointers && start_output_buffer);
+
+    CONVERTOR_CALL_NUMBER++;
 
     AssemblerErrors error = ASSEMBLER_NO_ERRORS;
 
-    labels_array_ctor(LABELS, LABELS_ARRAY_SIZE);
+    static Label_t labels[LABELS_ARRAY_SIZE] = {};
     char * output_buffer = start_output_buffer;
 
     for (size_t i = 0; i < strings_num; i++)
     {
+        char const * buffer_ptr = pointers[i];
+        buffer_ptr = skip_spaces(buffer_ptr);
 
-        if (is_label(pointers[i]))
+        if (is_label(buffer_ptr))
         {
-            add_label(pointers[i], LABELS, LABELS_ARRAY_SIZE, output_buffer - start_output_buffer);
+            if (error = add_label(pointers[i], labels, LABELS_ARRAY_SIZE, output_buffer - start_output_buffer))
+                return error;
+
             continue;
         }
 
-        char const * buffer_ptr = pointers[i];
         char command[MAX_COMMAND_SIZE] = "";
-        sscanf(pointers[i], "%s", command); // prosto po buferr_ptr
-        buffer_ptr = skip_word(buffer_ptr);
-        Hash_t string_hash = calculate_hash(command, strlen(command) + 1);
+        int cmd_len = 0;
+        sscanf(pointers[i], "%s%n", command, &cmd_len);
+        buffer_ptr += cmd_len;
+        Hash_t string_hash = calculate_hash(command, cmd_len + 1);
         for (size_t j = 0; j < ASSEMBLER_COMMANDS_ARRAY_SIZE; j++)
         {
             if (string_hash == ASSEMBLER_COMMANDS_ARRAY[j].hash)
@@ -75,7 +86,8 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
 
                 for (int k = 0; k < ASSEMBLER_COMMANDS_ARRAY[j].num_of_params; k++)
                 {
-                    if ((error = assembler_argument_processing(&buffer_ptr, &output_buffer, ASSEMBLER_COMMANDS_ARRAY[j].signature)))
+                    if ((error = assembler_argument_processing(&buffer_ptr, &output_buffer, ASSEMBLER_COMMANDS_ARRAY[j].signature,
+                         labels, LABELS_ARRAY_SIZE)))
                         return error;
 
                     buffer_ptr = skip_word(buffer_ptr);
@@ -84,13 +96,20 @@ AssemblerErrors assembler_convert(char const * const * pointers, size_t strings_
         }
     }
 
+    if (CONVERTOR_CALL_NUMBER >= NECESSARY_CONVERT_NUMBER)
+    {
+        labels_dtor(labels, LABELS_ARRAY_SIZE);
+    }
+
     return ASSEMBLER_NO_ERRORS;
 }
 
 
-AssemblerErrors assembler_argument_processing(const char * * buffer, char * * output_buffer, int signature)
+static AssemblerErrors assembler_argument_processing(const char * * buffer, char * * output_buffer, int signature,
+                                              Label_t * labels, size_t size)
 {
     bool success = false;
+    *buffer = skip_spaces(*buffer);
 
     if (signature & PROCESSOR_SIGNATURE_EMPTY)
     {
@@ -109,7 +128,7 @@ AssemblerErrors assembler_argument_processing(const char * * buffer, char * * ou
 
     if (signature & PROCESSOR_SIGNATURE_LABEL && success == false)
     {
-        success = try_process_signature_label(buffer, output_buffer);
+        success = try_process_signature_label(buffer, output_buffer, labels, size);
     }
 
     if (signature & PROCESSOR_SIGNATURE_RAM && success == false)
@@ -151,17 +170,17 @@ static bool try_process_signature_number(const char * * buffer, char * * output_
 static bool try_process_signature_register(const char * * buffer, char * * output_buffer)
 {
     char val_string[MAX_COMMAND_SIZE] = "";
+    int val_string_len = 0;
 
-    if (sscanf(*buffer, "%s", val_string))
+    if (sscanf(*buffer, "%s%n", val_string, &val_string_len))
     {
-        Hash_t val_string_hash = calculate_hash(val_string, strlen(val_string) + 1);
-
+        Hash_t val_string_hash = calculate_hash(val_string, val_string_len + 1);
 
         for (size_t i = 0; i < ASSEMBLER_REGISTERS_ARRAY_SIZE; i++)
         {
             if (val_string_hash == ASSEMBLER_REGISTERS_ARRAY[i].hash)
             {
-                *buffer = skip_word(*buffer);
+                *buffer += val_string_len;
                 *(*output_buffer) = (char) PROCESSOR_SIGNATURE_REGISTER;
                 (*output_buffer)++;
                 *(*output_buffer) = (char) ASSEMBLER_REGISTERS_ARRAY[i].id;
@@ -174,14 +193,35 @@ static bool try_process_signature_register(const char * * buffer, char * * outpu
     return false;
 }
 
-static bool try_process_signature_label(const char * * buffer, char * * output_buffer)
+static bool try_process_signature_label(const char * * buffer, char * * output_buffer, Label_t * labels, size_t size)
 {
     if (**buffer == ':')
     {
         (*buffer)++;
-        int label_id = atoi(*buffer);
-        *(*output_buffer) = (char) LABELS[label_id];
-        (*output_buffer)++;
+        char label_name[MAX_COMMAND_SIZE] = "";
+        int label_len = 0;
+        sscanf(*buffer, "%s%n", label_name, &label_len);
+        *buffer += label_len;
+        Hash_t label_hash = calculate_hash(label_name, label_len + 1);
+
+        size_t label_id = 0;
+        if (CONVERTOR_CALL_NUMBER == NECESSARY_CONVERT_NUMBER)
+        {
+            for (label_id = 0; label_id < size; label_id++)
+            {
+                if (labels[label_id].hash == label_hash)
+                {
+                    *(*output_buffer) = (char) labels[label_id].value;
+                    (*output_buffer)++;
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            (*output_buffer)++;
+        }
 
         return true;
     }
@@ -192,11 +232,13 @@ static bool try_process_signature_label(const char * * buffer, char * * output_b
 
 static bool try_process_signature_ram(const char * * buffer, char * * output_buffer)
 {
+    *buffer = skip_spaces(*buffer);
+
     if (**buffer == '[')
     {
+        *buffer = skip_spaces(*buffer);
         *(*output_buffer) = (char) PROCESSOR_SIGNATURE_RAM;
         (*output_buffer)++;
-        // POFIKSIT RAM I SDELAT FACT I KV
         (*buffer)++;
 
         bool success = false;
@@ -209,13 +251,18 @@ static bool try_process_signature_ram(const char * * buffer, char * * output_buf
         {
             return success;
         }
+
+        *buffer = skip_spaces(*buffer);
+
+        if (**buffer == ']')
+            return true;
     }
 
     return false;
 }
 
 
-AssemblerCommand assembler_create_command(const char * command_str, int signature, ProcessorCommands id, int number_of_params)
+static AssemblerCommand assembler_create_command(const char * command_str, int signature, ProcessorCommands id, int number_of_params)
 {
     AssemblerCommand command = {
         .command = command_str,
@@ -229,7 +276,7 @@ AssemblerCommand assembler_create_command(const char * command_str, int signatur
 }
 
 
-AssemblerRegister assembler_create_register(const char * register_str, ProcessorRegisters id)
+static AssemblerRegister assembler_create_register(const char * register_str, ProcessorRegisters id)
 {
     AssemblerRegister rgstr = {
         .rgstr = register_str,
@@ -243,33 +290,50 @@ AssemblerRegister assembler_create_register(const char * register_str, Processor
 
 static bool is_label(const char * string)
 {
+    string = skip_spaces(string);
     return (*string == ':');
-}
-
-
-static AssemblerErrors labels_array_ctor(Label_t * labels, size_t size)
-{
-    for (size_t i = 0; i < size; i++)
-    {
-        labels[i] = -1;
-    }
-
-    return ASSEMBLER_NO_ERRORS;
 }
 
 
 static AssemblerErrors add_label(const char * string, Label_t * labels, size_t size, int ip)
 {
-    char * ptr = strchr(string, ':');
+    MY_ASSERT(string);
+    MY_ASSERT(labels);
 
-    MY_ASSERT(ptr);
+    char * ptr = strchr(string, ':') + 1;
 
-    int label_id = (int) (*(ptr + 1) - '0');
+    size_t label_id = 0;
+    for (label_id = 0; label_id < size; label_id++)
+    {
+        if (!labels[label_id].name)
+            break;
+    }
 
-    if (!(0 <= label_id && label_id < (int) size))
+    if (label_id > size)
         return ASSEMBLER_LABEL_ERROR;
 
-    labels[label_id] = ip;
+    char label_name[MAX_COMMAND_SIZE] = "";
+    int label_len = 0;
+    sscanf(ptr, "%s%n", label_name, &label_len);
+
+    if (!(labels[label_id].name = (char *) calloc(label_len + 1, sizeof(char))))
+        return ASSEMBLER_LABEL_ERROR;
+
+    strcpy(labels[label_id].name, label_name);
+    labels[label_id].value = ip;
+
+    labels[label_id].hash = calculate_hash(labels[label_id].name, label_len + 1);
+
+    return ASSEMBLER_NO_ERRORS;
+}
+
+
+static AssemblerErrors labels_dtor(Label_t * labels, size_t size)
+{
+    for (size_t i = 0; i < size && labels[i].name; i++)
+    {
+        free(labels[i].name);
+    }
 
     return ASSEMBLER_NO_ERRORS;
 }

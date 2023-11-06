@@ -1,8 +1,9 @@
 CC = g++
-FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Weffc++ -Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
+FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Weffc++ -Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE -Wno-parentheses
 IFLAGS = -Iinclude -I../config/include -I../MyStack/include
 CONFIGDIR = ../config
 OBJDIR = ./obj
+SRCDIR = ./src
 ASSEMBLER = assembler
 FILEPROCESSING = file_processing
 MYASSERT = my_assert
@@ -16,7 +17,7 @@ OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(MYA
 all: $(OBJECTS)
 	@$(CC) $(OBJECTS) -o assembler
 
-$(OBJDIR)/$(ASSEMBLER).o: $(ASSEMBLER).cpp
+$(OBJDIR)/$(ASSEMBLER).o: $(SRCDIR)/$(ASSEMBLER).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(FILEPROCESSING).o: $(CONFIGDIR)/$(FILEPROCESSING).cpp
@@ -34,10 +35,10 @@ $(OBJDIR)/$(MYASSERT).o: $(CONFIGDIR)/$(MYASSERT).cpp
 $(OBJDIR)/$(STRINGS).o: $(CONFIGDIR)/$(STRINGS).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
-$(OBJDIR)/$(CONVERTOR).o: $(CONVERTOR).cpp
+$(OBJDIR)/$(CONVERTOR).o: $(SRCDIR)/$(CONVERTOR).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
-$(OBJDIR)/$(PFLAGS).o: $(PFLAGS).cpp
+$(OBJDIR)/$(PFLAGS).o: $(SRCDIR)/$(PFLAGS).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:

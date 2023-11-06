@@ -9,5 +9,6 @@
     void show_strings(const char * const * strings, const size_t strings_num);
     char * skip_word(const char * buffer);
     char * next_word(const char * buffer);
+    char * skip_spaces(const char * buffer);
 
 #endif // STRINGS_H

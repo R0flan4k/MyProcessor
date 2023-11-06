@@ -70,13 +70,16 @@ int main(int argc, char * argv[])
 
     AssemblerErrors errors = ASSEMBLER_NO_ERRORS;
 
-    if ((errors = assembler_convert(pointers, strings_num, output_buffer)))
+    for (int convertor_call_number = 0; convertor_call_number < NECESSARY_CONVERT_NUMBER; convertor_call_number++)
     {
-        printf("Assembler error code: %d\n", (int) errors);
-        return errors;
+        if ((errors = assembler_convert(pointers, strings_num, output_buffer)))
+        {
+            printf("Assembler error code: %d\n", (int) errors);
+            return errors;
+        }
     }
 
-    assembler_dump(pointers, strings_num, output_buffer, buffer_size);
+    // assembler_dump(pointers, strings_num, output_buffer, buffer_size);
 
     free(pointers);
     free(buffer);
@@ -100,6 +103,3 @@ int main(int argc, char * argv[])
 
     return 0;
 }
-
-// MASSIV SIGNATUT, TK RAZNIYAE ARGUMENTI MOGUT IMET RAZNYUY SIGNATURY/
-// rsp stack pointer
