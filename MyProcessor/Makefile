@@ -4,6 +4,7 @@ all:
 clean:
 	make --directory="./SPU/" clean
 	make --directory="./ASSEMBLER/" clean
+	@rm -f AsmBin/*.bin
 
 factorial:
 	@./ASSEMBLER/assembler.exe --source ./AsmSrc/factorial.txt --target ./AsmBin/factorial.bin

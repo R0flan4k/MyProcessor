@@ -47,8 +47,8 @@ int main(int argc, char * argv[])
     size_t strings_num = get_strings_num(buffer);
 
 
-    const char * * pointers = NULL;
-    if ((pointers = (const char * *) calloc(strings_num, sizeof(char *))) == NULL)
+    const char * * asm_strs = NULL;
+    if ((asm_strs = (const char * *) calloc(strings_num, sizeof(char *))) == NULL)
     {
         printf("Can't allocate memory.");
         free(buffer);
@@ -56,13 +56,13 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    get_pointers(buffer, pointers, strings_num);
+    get_pointers(buffer, asm_strs, strings_num);
 
     char * output_buffer = NULL;
     if ((output_buffer = (char *) calloc(buffer_size, sizeof(char))) == NULL)
     {
         printf("Can't allocate memory.");
-        free(pointers);
+        free(asm_strs);
         free(buffer);
 
         return 1;
@@ -70,18 +70,30 @@ int main(int argc, char * argv[])
 
     AssemblerErrors errors = ASSEMBLER_NO_ERRORS;
 
+    Label_t labels[LABELS_ARRAY_SIZE] = {};
+
     for (int convertor_call_number = 0; convertor_call_number < NECESSARY_CONVERT_NUMBER; convertor_call_number++)
     {
-        if ((errors = assembler_convert(pointers, strings_num, output_buffer)))
+        if ((errors = assembler_convert(asm_strs, strings_num, output_buffer,
+                                        labels, LABELS_ARRAY_SIZE, convertor_call_number)))
         {
+
+            assembler_dump(asm_strs, strings_num, output_buffer, buffer_size);
             printf("Assembler error code: %d\n", (int) errors);
+
             return errors;
         }
     }
 
-    // assembler_dump(pointers, strings_num, output_buffer, buffer_size);
+    if (errors = labels_dtor(labels, LABELS_ARRAY_SIZE))
+    {
+        assembler_dump(asm_strs, strings_num, output_buffer, buffer_size);
+        printf("Can't destruct labels array\n");
 
-    free(pointers);
+        return errors;
+    }
+
+    free(asm_strs);
     free(buffer);
 
     if ((target_fp = file_open(TARGET_FILE_NAME, "wb")) == NULL)

@@ -135,13 +135,13 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
                 }
 
             #define SPU_CALL_STACK_POP(val) \
-                if ((errors = stack_pop(&spu->call_stk, (val))))    \
+                if ((errors = stack_pop(&spu->call_stk, val)))    \
                 {                                                   \
                     return errors;                                  \
                 }
 
             #define JUMP \
-                spu->ip = (size_t) *((char *) &(bytecode_ptr[spu->ip])) - 1;
+                spu->ip = (size_t) *((unsigned char *) &(bytecode_ptr[spu->ip])) - 1;
 
             #define JUMP_IF(exp) \
                 if (exp)         \
@@ -428,7 +428,7 @@ static void spu_stack_dump(const Stack * stk, const char * stk_name, const Error
 
     int i = 0;
 
-    while (i < stk->size && stk->data != nullptr)
+    while (i < stk->size + 1 && stk->data != nullptr)
     {
         printf("            [%d] = " ELEM_SPEC "\n", i, stk->data[i]);
 

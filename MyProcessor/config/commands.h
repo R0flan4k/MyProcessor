@@ -174,5 +174,7 @@ CMD("call", PROCESSOR_SIGNATURE_LABEL, CALL, 1, 19,
     )
 
 CMD("ret", PROCESSOR_SIGNATURE_EMPTY, RET, 0, 20,
-                RETURN;
+                SPU_CALL_STACK_POP(&out_val);
+                spu->ip = (size_t) out_val;
+                spu->ip++;
     )
