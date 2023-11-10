@@ -1,5 +1,5 @@
 CMD("push", PROCESSOR_SIGNATURE_NUMBER | PROCESSOR_SIGNATURE_REGISTER | PROCESSOR_SIGNATURE_RAM, PUSH, 1, 1,
-                NEXT_BYTE;
+                IP++;
                 ARGUMENT_PROCESS(
                     ASSIGN_NUMBER(in_val);
                     SKIP_EIGHT_BYTES;
@@ -40,31 +40,42 @@ CMD("push", PROCESSOR_SIGNATURE_NUMBER | PROCESSOR_SIGNATURE_REGISTER | PROCESSO
     )
 
 CMD("add", PROCESSOR_SIGNATURE_EMPTY, ADD, 0, 2,
-                BINARY_OPERATION(ADDITION);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_POP(&out_val);
+                SPU_STACK_PUSH(out_val + in_val);
    )
 
 CMD("sub", PROCESSOR_SIGNATURE_EMPTY, SUB, 0, 3,
-                BINARY_OPERATION(SUBTRACTION);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_POP(&out_val);
+                SPU_STACK_PUSH(out_val - in_val);
    )
 
 CMD("mul", PROCESSOR_SIGNATURE_EMPTY, MUL, 0, 4,
-                BINARY_OPERATION(MULTIPLICATION);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_POP(&out_val);
+                SPU_STACK_PUSH(out_val * in_val);
    )
 
 CMD("div", PROCESSOR_SIGNATURE_EMPTY, DIV, 0, 5,
-                BINARY_OPERATION(DIVISION);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_POP(&out_val);
+                SPU_STACK_PUSH(out_val / in_val);
     )
 
 CMD("sqrt", PROCESSOR_SIGNATURE_EMPTY, SQRT, 0, 6,
-                UNARY_OPERATION(SQUARE_ROOT);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_PUSH(sqrt(in_val));
    )
 
 CMD("sin", PROCESSOR_SIGNATURE_EMPTY, SIN, 0, 7,
-                UNARY_OPERATION(SINUS);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_PUSH(sin(in_val));
    )
 
 CMD("cos", PROCESSOR_SIGNATURE_EMPTY, COS, 0, 8,
-                UNARY_OPERATION(COSINUS);
+                SPU_STACK_POP(&in_val);
+                SPU_STACK_PUSH(cos(in_val));
    )
 
 CMD("in", PROCESSOR_SIGNATURE_EMPTY, IN, 0, 9,
@@ -83,7 +94,7 @@ CMD("hlt", PROCESSOR_SIGNATURE_EMPTY, HLT, 0, -1,
 
 CMD("pop", PROCESSOR_SIGNATURE_REGISTER | PROCESSOR_SIGNATURE_RAM, POP, 1, 11,
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
+                IP++;
                 ARGUMENT_PROCESS(
                     UNREACHABLE;
                     ,
@@ -121,60 +132,78 @@ CMD("pop", PROCESSOR_SIGNATURE_REGISTER | PROCESSOR_SIGNATURE_RAM, POP, 1, 11,
    )
 
 CMD("jmp", PROCESSOR_SIGNATURE_LABEL, JMP, 1, 12,
-                NEXT_BYTE;
-                JUMP;
+                IP++;
+                SET_IP(THIS_BYTE - 1);
    )
 
 CMD("jb", PROCESSOR_SIGNATURE_LABEL, JB, 1, 13,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(out_val < in_val);
+                IP++;
+                if (out_val < in_val)
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("ja", PROCESSOR_SIGNATURE_LABEL, JA, 1, 14,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(out_val > in_val);
+                IP++;
+                if (out_val > in_val)
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("jae", PROCESSOR_SIGNATURE_LABEL, JAE, 1, 15,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(out_val > in_val || is_equal_double(out_val, in_val));
+                IP++;
+                if (out_val > in_val || is_equal_double(out_val, in_val))
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("jbe", PROCESSOR_SIGNATURE_LABEL, JBE, 1, 16,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(out_val < in_val || is_equal_double(out_val, in_val));
+                IP++;
+                if (out_val < in_val || is_equal_double(out_val, in_val))
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("je", PROCESSOR_SIGNATURE_LABEL, JE, 1, 17,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(is_equal_double(out_val, in_val));
+                IP++;
+                if (is_equal_double(out_val, in_val))
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("jne", PROCESSOR_SIGNATURE_LABEL, JNE, 1, 18,
                 SPU_STACK_POP(&in_val);
                 SPU_STACK_POP(&out_val);
-                NEXT_BYTE;
-                JUMP_IF(!is_equal_double(out_val, in_val));
+                IP++;
+                if (!is_equal_double(out_val, in_val))
+                {
+                    SET_IP(THIS_BYTE - 1);
+                }
     )
 
 CMD("call", PROCESSOR_SIGNATURE_LABEL, CALL, 1, 19,
                 SPU_CALL_STACK_PUSH(spu->ip);
-                NEXT_BYTE;
-                JUMP;
+                IP++;
+                SET_IP(THIS_BYTE - 1);
     )
 
 CMD("ret", PROCESSOR_SIGNATURE_EMPTY, RET, 0, 20,
                 SPU_CALL_STACK_POP(&out_val);
-                spu->ip = (size_t) out_val;
-                spu->ip++;
+                SET_IP(out_val);
+                IP++;
     )

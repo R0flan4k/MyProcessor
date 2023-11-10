@@ -270,6 +270,15 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
                 printf("Error: can't pop ip register\n"); \
                 return errors;
 
+            #define IP \
+                (spu->ip)
+
+            #define SET_IP(val) \
+                IP = (size_t) (val);
+
+            #define THIS_BYTE \
+                *((unsigned char *) &(bytecode_ptr[spu->ip]))
+
             #define CMD(str, signature, enum_id, num_of_params, id, code)\
                 case PROCESSOR_COMMAND_ ## enum_id: \
                 code     \
@@ -278,6 +287,9 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
             #include "commands.h"
 
             #undef CMD
+            #undef IP
+            #undef SET_IP
+            #undef THIS_BYTE
             #undef SPU_STACK_PUSH
             #undef SPU_STACK_POP
             #undef SPU_CALL_STACK_PUSH
