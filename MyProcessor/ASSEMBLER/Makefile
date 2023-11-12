@@ -13,7 +13,7 @@ HASH = hash
 CMDINPUT = cmd_input
 CONVERTOR = convertor
 PFLAGS = flags
-OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(LIBDIR)/$(FILEPROCESSING).o $(LIBDIR)/$(MYASSERT).o $(LIBDIR)/$(STRINGS).o $(OBJDIR)/$(CMDINPUT).o $(LIBDIR)/$(HASH).o $(OBJDIR)/$(CONVERTOR).o $(OBJDIR)/$(PFLAGS).o
+OBJECTS = $(OBJDIR)/$(ASSEMBLER).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(STRINGS).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o $(OBJDIR)/$(CONVERTOR).o $(OBJDIR)/$(PFLAGS).o
 
 all: $(OBJECTS)
 	@$(CC) $(OBJECTS) -o assembler
@@ -28,6 +28,18 @@ $(OBJDIR)/$(CONVERTOR).o: $(SRCDIR)/$(CONVERTOR).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 $(OBJDIR)/$(PFLAGS).o: $(SRCDIR)/$(PFLAGS).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(FILEPROCESSING).o: $(LIBDIR)/$(FILEPROCESSING).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(HASH).o: $(LIBDIR)/$(HASH).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(MYASSERT).o: $(LIBDIR)/$(MYASSERT).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(STRINGS).o: $(LIBDIR)/$(STRINGS).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
 clean:

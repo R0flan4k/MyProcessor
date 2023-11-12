@@ -17,7 +17,7 @@ HASH = hash
 PFLAGS = flags
 STACKHASH = stack_hash
 DOUBLECOMPARING = double_comparing
-OBJECTS = $(OBJDIR)/$(SPU).o $(OBJDIR)/$(STACK).o $(OBJDIR)/$(VERIFICATOR).o $(LIBDIR)/$(MYASSERT).o $(OBJDIR)/$(CMDINPUT).o $(LIBDIR)/$(HASH).o $(OBJDIR)/$(ARITHMETIC).o $(LIBDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(PFLAGS).o $(OBJDIR)/$(STACKHASH).o $(LIBDIR)/$(DOUBLECOMPARING).o
+OBJECTS = $(OBJDIR)/$(SPU).o $(OBJDIR)/$(STACK).o $(OBJDIR)/$(VERIFICATOR).o $(OBJDIR)/$(MYASSERT).o $(OBJDIR)/$(CMDINPUT).o $(OBJDIR)/$(HASH).o $(OBJDIR)/$(ARITHMETIC).o $(OBJDIR)/$(FILEPROCESSING).o $(OBJDIR)/$(PFLAGS).o $(OBJDIR)/$(STACKHASH).o $(OBJDIR)/$(DOUBLECOMPARING).o
 
 all: $(OBJECTS)
 	@$(CC) $(OBJECTS) -o spu
@@ -43,5 +43,16 @@ $(OBJDIR)/$(PFLAGS).o: $(SRCDIR)/$(PFLAGS).cpp
 $(OBJDIR)/$(STACKHASH).o: $(STKDIR)/$(STACKHASH).cpp
 	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 
+$(OBJDIR)/$(FILEPROCESSING).o: $(LIBDIR)/$(FILEPROCESSING).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(MYASSERT).o: $(LIBDIR)/$(MYASSERT).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(HASH).o: $(LIBDIR)/$(HASH).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
+
+$(OBJDIR)/$(DOUBLECOMPARING).o: $(LIBDIR)/$(DOUBLECOMPARING).cpp
+	@$(CC) $(FLAGS) $(IFLAGS) -c $^  -o $@
 clean:
 	@rm -f $(OBJDIR)/*.o *~ core *~ *.exe

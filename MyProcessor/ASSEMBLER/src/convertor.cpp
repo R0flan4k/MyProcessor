@@ -64,7 +64,7 @@ AssemblerErrors assembler_convert(char const * const * asm_strs, size_t strings_
 
         if (is_label(buffer_ptr))
         {
-            if (error = add_label(asm_strs[i], labels, labels_size, output_buffer - start_output_buffer))
+            if (error = add_label(asm_strs[i], labels, labels_size, (int) (output_buffer - start_output_buffer)))
                 return error;
 
             continue;
