@@ -263,7 +263,7 @@ Error_t spu_process_comands(SoftProcessorUnit * spu)
                 (spu->ip)
 
             #define SET_IP(val) \
-                IP = (size_t) (val);
+                IP = (unsigned int) (val);
 
             #define THIS_BYTE \
                 *((unsigned char *) &(bytecode_ptr[spu->ip]))

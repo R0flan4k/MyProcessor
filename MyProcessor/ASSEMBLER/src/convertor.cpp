@@ -64,7 +64,7 @@ AssemblerErrors assembler_convert(char const * const * asm_strs, size_t strings_
 
         if (is_label(buffer_ptr))
         {
-            if (error = add_label(asm_strs[i], labels, labels_size, (int) (output_buffer - start_output_buffer)))
+            if (error = add_label(buffer_ptr, labels, labels_size, (int) (output_buffer - start_output_buffer)))
                 return error;
 
             continue;
@@ -72,7 +72,7 @@ AssemblerErrors assembler_convert(char const * const * asm_strs, size_t strings_
 
         char command[MAX_COMMAND_SIZE] = "";
         int cmd_len = 0;
-        sscanf(asm_strs[i], "%s%n", command, &cmd_len);
+        sscanf(buffer_ptr, "%s%n", command, &cmd_len);
         buffer_ptr += cmd_len;
         Hash_t string_hash = calculate_hash(command, cmd_len + 1);
         for (size_t j = 0; j < ASSEMBLER_COMMANDS_ARRAY_SIZE; j++)
@@ -297,7 +297,7 @@ static AssemblerErrors add_label(const char * string, Label_t * labels, size_t s
     MY_ASSERT(string);
     MY_ASSERT(labels);
 
-    char * ptr = (char *) (strchr(string, ':') + 1);
+    char * ptr = const_cast <char *> (strchr(string, ':') + 1);
 
     size_t label_id = 0;
     for (label_id = 0; label_id < size; label_id++)
